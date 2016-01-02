@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -m64 -std=c99 -pedantic -Wall -Wshadow -Wpointer-arith -Wcast-qual
+CFLAGS= -m64 -std=c99 -pedantic -Wall -Wshadow -Wpointer-arith -Wcast-qual -g
 PROG=packer
 packer: main.o
 	$(CC) $(CFLAGS) -o $(PROG) $?

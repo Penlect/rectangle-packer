@@ -7,6 +7,7 @@
 char *line_alloc(FILE *fp)
 {
     char *line = NULL;
+    char *line_temp = NULL;
     size_t size = 0;
     int c = 0;
 
@@ -14,7 +15,6 @@ char *line_alloc(FILE *fp)
         fprintf(stderr, "Error. File pointer is NULL.\n");
         return NULL;
     }
-
     while(1){
         /* Read a char, return null if file is already EOF,
          * else try to realloc line, return if character is newline or
@@ -24,9 +24,13 @@ char *line_alloc(FILE *fp)
             return NULL;
         }
         size++;
-        if( (line = realloc(line, size)) == NULL ){
+        if( (line_temp = realloc(line, size*sizeof(*line))) == NULL ){
             fprintf(stderr, "Error. Could not reallocate memory for line.\n");
+            free(line);
             return NULL;
+        }
+        else{
+            line = line_temp;
         }
         if(c == '\n' || c == EOF){
             line[size - 1] = '\0';
@@ -36,7 +40,6 @@ char *line_alloc(FILE *fp)
             line[size - 1] = c;
         }
     }
-
     return NULL;
 }
 
@@ -77,6 +80,7 @@ struct box{
 struct box *boxlist_alloc(FILE *fp, int *nr_boxes)
 {
     struct box *boxpt = NULL;
+    struct box *boxpt_temp = NULL;
     size_t size = 0;
     char *line = NULL;
 
@@ -90,23 +94,22 @@ struct box *boxlist_alloc(FILE *fp, int *nr_boxes)
         struct box temp;
         int elements;
 
-        printf("%s\n", line);
         size++;
-        if( (boxpt = realloc(boxpt, size)) == NULL ){
+        if( (boxpt_temp = realloc(boxpt, size*sizeof(*boxpt))) == NULL ){
             fprintf(stderr, "Error. Could not reallocate memory for box list.\n");
+            free(boxpt);
+            free(line);
             return NULL;
         }
+        else{
+            boxpt = boxpt_temp;
+        }
         csv_integers = csvint_alloc(line, &elements);
-        printf("Elements:%d:h%d:w%d\n", elements, csv_integers[0], csv_integers[1]);
         temp.height = csv_integers[0];
         temp.width = csv_integers[1];
         boxpt[size - 1] = temp;
-        printf("size:%d\n", (int) size);
-        printf("%p ___ %p\n", (void *)csv_integers, (void *)line);
         free(csv_integers);
-        printf("free1\n");
         free(line);
-        printf("free2\n");
     }
     *nr_boxes = (int) size;
     return boxpt;
@@ -122,11 +125,27 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
+    /*
+     * FUNGERAR
+    char *line = NULL;
+    int *numbers = NULL;
+    while( (line = line_alloc(fp)) != NULL ){
+        printf("line: %s\n", line);
+        int elements;
+        numbers = csvint_alloc(line, &elements); 
+        int i;
+        for(i = 0; i < elements; i++){
+            printf("int: %d, ", numbers[i]);
+        }
+        free(numbers);
+        free(line);
+    }*/
+
     struct box *list;
     int length;
     int i;
     list = boxlist_alloc(fp, &length);
-    printf("boxlist_alloc length %d", length);
+    printf("boxlist_alloc length %d\n", length);
     for(i = 0; i < length; i++){
         printf("h = %d, w = %d\n", list[i].height, list[i].width);
     }
