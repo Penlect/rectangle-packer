@@ -72,15 +72,31 @@ int *csvint_alloc(char *line, int *elements)
     return csvint_alloc;
 }
 
-struct box{
+struct rec{
     int height;
     int width;
 };
 
-struct box *boxlist_alloc(FILE *fp, int *nr_boxes)
+int compare_rec_height(const void *p, const void *q)
 {
-    struct box *boxpt = NULL;
-    struct box *boxpt_temp = NULL;
+    struct rec x = *(const struct rec *)p;
+    struct rec y = *(const struct rec *)q;
+
+    if(x.height == y.height){
+        return 0;
+    }
+    else if(x.height < y.height){
+        return -1;
+    }
+    else{
+        return 1;
+    }
+}
+
+struct rec *rec_list_alloc(FILE *fp, int *nr_reces)
+{
+    struct rec *recpt = NULL;
+    struct rec *recpt_temp = NULL;
     size_t size = 0;
     char *line = NULL;
 
@@ -91,28 +107,29 @@ struct box *boxlist_alloc(FILE *fp, int *nr_boxes)
 
     while( (line = line_alloc(fp)) != NULL ){
         int *csv_integers;
-        struct box temp;
+        struct rec temp;
         int elements;
 
         size++;
-        if( (boxpt_temp = realloc(boxpt, size*sizeof(*boxpt))) == NULL ){
-            fprintf(stderr, "Error. Could not reallocate memory for box list.\n");
-            free(boxpt);
+        if( (recpt_temp = realloc(recpt, size*sizeof(*recpt))) == NULL ){
+            fprintf(stderr, "Error. Could not reallocate memory for rec list.\n");
+            free(recpt);
             free(line);
             return NULL;
         }
         else{
-            boxpt = boxpt_temp;
+            recpt = recpt_temp;
         }
         csv_integers = csvint_alloc(line, &elements);
         temp.height = csv_integers[0];
         temp.width = csv_integers[1];
-        boxpt[size - 1] = temp;
+        recpt[size - 1] = temp;
         free(csv_integers);
         free(line);
     }
-    *nr_boxes = (int) size;
-    return boxpt;
+    *nr_reces = (int) size;
+    qsort((void *)recpt, size, sizeof(*recpt), compare_rec_height);
+    return recpt;
 }
 
 int main(int argc, char *argv[]){
@@ -141,11 +158,11 @@ int main(int argc, char *argv[]){
         free(line);
     }*/
 
-    struct box *list;
+    struct rec *list;
     int length;
     int i;
-    list = boxlist_alloc(fp, &length);
-    printf("boxlist_alloc length %d\n", length);
+    list = rec_list_alloc(fp, &length);
+    printf("reclist_alloc length %d\n", length);
     for(i = 0; i < length; i++){
         printf("h = %d, w = %d\n", list[i].height, list[i].width);
     }
