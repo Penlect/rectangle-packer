@@ -8,7 +8,7 @@ packer: main.o parse_rec/parse_rec.o
 main.o: main.c
 	$(CC) $(CFLAGS) -c $?
 
-parse_rec/parse_rec.o:
+parse_rec/parse_rec.o: parse_rec/parse_rec.c
 	cd parse_rec; make
 
 clean:
