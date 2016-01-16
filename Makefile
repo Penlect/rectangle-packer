@@ -1,9 +1,9 @@
 CC=gcc
-CFLAGS= -m64 -std=c99 -pedantic -Wall -Wshadow -Wpointer-arith -Wcast-qual -g
+CFLAGS= -m64 -std=c99 -pedantic -Wall -Wshadow -Wpointer-arith -Wcast-qual
 PROG=packer
 
 packer: main.c parse_rec/parse_rec.c placing/placing.c
-	$(CC) $(CFLAGS) -o $(PROG) $?
+	$(CC) $(CFLAGS) -o $(PROG) $? -lSDL2
 
 clean:
 	rm packer

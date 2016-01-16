@@ -59,7 +59,7 @@ typedef struct {
 
 Placing *alloc_placing(int enclosing_height,int enclosing_width);
 void free_placing(Placing *placing);
-int add_rec(Placing *p, struct rec r, int id);
+int add_rec(Placing *p, struct rec *r);
 void print_placing(Placing *placing);
 void print_region(Region *reg);
 

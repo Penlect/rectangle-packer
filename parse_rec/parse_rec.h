@@ -6,6 +6,9 @@
 struct rec{
     int height;
     int width;
+    int x;
+    int y;
+    int id;
 };
 
 struct rec *rec_list_alloc(FILE *fp, int *nr_reces);

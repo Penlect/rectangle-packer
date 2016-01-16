@@ -150,7 +150,7 @@ static Cell *step_offset(Cell *base, int offset)
     return cell;
 }
 
-static int find_region(Placing *placing, struct rec rectangle, Region *reg)
+static int find_region(Placing *placing, struct rec *rectangle, Region *reg)
 {
     Col *col;
     int i;
@@ -162,7 +162,7 @@ static int find_region(Placing *placing, struct rec rectangle, Region *reg)
         Col *temp;
 
         /* Check if this column can fit rectangle's height */
-        if(!try_fit_height_in_col(col, rectangle.height, &cell_r)){
+        if(!try_fit_height_in_col(col, rectangle->height, &cell_r)){
             /* Nope, did't fit */
             continue;
         }
@@ -177,14 +177,14 @@ static int find_region(Placing *placing, struct rec rectangle, Region *reg)
                 break;
             }
             else{
-                if(sum_width + temp->width > rectangle.width){
+                if(sum_width + temp->width > rectangle->width){
                     /* (Split will be needed )*/
-                    col_r.overshoot = rectangle.width - sum_width;
+                    col_r.overshoot = rectangle->width - sum_width;
                     reg->col_r = col_r;
                     reg->cell_r = cell_r;
                     return SUCCESS;
                 }
-                else if(sum_width + temp->width == rectangle.width){
+                else if(sum_width + temp->width == rectangle->width){
                     /* (No split will be needed) */
                     col_r.overshoot = 0;
                     reg->col_r = col_r;
@@ -199,7 +199,7 @@ static int find_region(Placing *placing, struct rec rectangle, Region *reg)
     return FAIL;
 }
 
-static int split(Placing *placing, struct rec rectangle, Region *reg)
+static int split(Placing *placing, Region *reg)
 {
     Col *col = NULL;
     Cell *cell = NULL;
@@ -277,32 +277,47 @@ static int split(Placing *placing, struct rec rectangle, Region *reg)
     return SUCCESS;
 }
 
-static int update(Placing *placing, struct rec rectangle, Region *reg, int id)
+static int update(Placing *placing, struct rec *rectangle, Region *reg)
 {
     Col *col;
     Cell *cell;
     int i;
     int k;
+    int x = 0;
+    int y = 0;
+    int done = 0;
+    if(rectangle->id == 0){
+        fprintf(stderr, "Error. Rectangle can't have id = 0.\n");
+        return FAIL;
+    }
     /* Loop over every column */
     for(col = placing->cols, i = 0; col != NULL; col=col->next_col, i++){
         if(i > reg->col_r.end_index){
             break;
         }
         if(i >= reg->col_r.start_index){
+            /* Loop over every cell */
             for(cell = col->cell, k = 0; cell != NULL; cell=cell->next_cell, k++){
                 if(k > reg->cell_r.end_index){
                     break;
                 }
                 if(k >= reg->cell_r.start_index){
-                    cell->occupied = id;
+                    cell->occupied = rectangle->id;
+                    if(!done){
+                        rectangle->x = x;
+                        rectangle->y = y;
+                        done = 1;
+                    }
                 }
+                y += cell->height;
             }
         }
+        x += col->width;
     }
     return SUCCESS;
 }
 
-int add_rec(Placing *p, struct rec r, int id)
+int add_rec(Placing *p, struct rec *r)
 {
     int status;
     Region reg;
@@ -312,13 +327,13 @@ int add_rec(Placing *p, struct rec r, int id)
         return FAIL;
     }
 
-    status = split(p, r, &reg);
+    status = split(p, &reg);
     if(status == FAIL){
         fprintf(stderr, "Error in splitting.\n");
         return FAIL;
     }
 
-    status = update(p, r, &reg, id);
+    status = update(p, r, &reg);
     if(status == FAIL){
         fprintf(stderr, "Error in splitting.\n");
         return FAIL;

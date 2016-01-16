@@ -105,6 +105,7 @@ struct rec *rec_list_alloc(FILE *fp, int *nr_reces)
     struct rec *recpt_temp = NULL;
     size_t size = 0;
     char *line = NULL;
+    int id = 0;
 
     /* Check that we didn't get a NULL file pointer */
     if(fp == NULL){
@@ -141,6 +142,10 @@ struct rec *rec_list_alloc(FILE *fp, int *nr_reces)
         }
         temp.height = csv_integers[0];
         temp.width = csv_integers[1];
+        /* -1 to indicate that the rectangle don't have a position */
+        temp.x = -1; 
+        temp.y = -1;
+        temp.id = ++id;
         recpt[size - 1] = temp;
         free(csv_integers);
         free(line);
