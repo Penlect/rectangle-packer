@@ -1,6 +1,3 @@
-#ifndef PLACING_H
-#define PLACING_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,19 +5,63 @@
 #include "placing.h"
 #include "../parse_rec/parse_rec.h"
 
-void print_region(Region *reg)
-{
-    printf("-------- REGION --------\n");
-    printf("Col start:%d\n", reg->col_r.start_index);
-    printf("Col end:  %d\n", reg->col_r.end_index);
-    printf("Col overshoot:%d\n", reg->col_r.overshoot);
-    printf("Cell start:%d\n", reg->cell_r.start_index);
-    printf("Cell end:  %d\n", reg->cell_r.end_index);
-    printf("Cell overshoot:%d\n\n", reg->cell_r.overshoot);
-    return;
-}
+#define SUCCESS 1
+#define FAIL 0
 
-Placing *alloc_placing(int enclosing_height,int enclosing_width)
+/* A Cell is a linked structure holding information about the cells.
+ * height - the height of the cell.
+ * occupied - if the cell is occupied this value will be nonzero.
+ * next_cell - next cell right under the current cell. */
+struct cell {
+    int height;
+    int occupied;
+    struct cell *next_cell;
+};
+typedef struct cell Cell;
+
+/* A Col is a linked structure holding information about the columns.
+ * width - column width.
+ * cell - pointer to the root cell in this column (heighest cell).
+ * next_col - next column to the right of the current column */
+struct col {
+    int width;
+    Cell *cell;
+    struct col *next_col;
+};
+typedef struct col Col;
+
+/* A Placing will represent an instance of rectangles placed on an
+ * rectangular surface.
+ * enclosing_height - enclosing height of the Placing, the sum of all cell
+ * heights in any of the colums must be equal to this value.
+ * enclosing_width - enclosing width of the Placing, the sum of all column
+ * widhts must be equal to this value.
+ * cols - pointer to the column positioned farthest to the left.
+ * */
+typedef struct {
+    int enclosing_height;
+    int enclosing_width;
+    Col *cols;
+} Placing;
+
+typedef struct {
+    int start_index;
+    int end_index;
+    int overshoot; /* Length overshoot in cell at end_index */
+} Cell_range; 
+
+typedef struct {
+    int start_index;
+    int end_index;
+    int overshoot;
+} Col_range;
+
+typedef struct {
+    Col_range col_r;
+    Cell_range cell_r;
+} Region;
+
+static Placing *alloc_placing(int enclosing_width,int enclosing_height)
 {
     Placing *p_pt;
     Col *c_pt;
@@ -61,7 +102,7 @@ Placing *alloc_placing(int enclosing_height,int enclosing_width)
     return p_pt;
 }
 
-void free_placing(Placing *placing)
+static void free_placing(Placing *placing)
 {
     Col *col = NULL;
 
@@ -317,7 +358,7 @@ static int update(Placing *placing, struct rec *rectangle, Region *reg)
     return SUCCESS;
 }
 
-int add_rec(Placing *p, struct rec *r)
+static int add_rec(Placing *p, struct rec *r)
 {
     int status;
     Region reg;
@@ -342,7 +383,23 @@ int add_rec(Placing *p, struct rec *r)
     return status;
 }
 
-void print_placing(Placing *placing)
+int do_placing(struct rec *list, int length, int enclosing_width, int enclosing_height)
+{
+    int i;
+
+    Placing *p = alloc_placing(enclosing_width, enclosing_height);
+
+    for(i = 0; i < length; i++){
+        if(!add_rec(p, list + i)){
+            free_placing(p);
+            return FAIL;
+        }
+    }
+    free_placing(p);
+    return SUCCESS;
+}
+/*
+static void print_placing(Placing *placing)
 {
     Col *col = NULL;
     Cell *cell = NULL;
@@ -366,5 +423,16 @@ void print_placing(Placing *placing)
     return;
 }
 
+static void print_region(Region *reg)
+{
+    printf("-------- REGION --------\n");
+    printf("Col start:%d\n", reg->col_r.start_index);
+    printf("Col end:  %d\n", reg->col_r.end_index);
+    printf("Col overshoot:%d\n", reg->col_r.overshoot);
+    printf("Cell start:%d\n", reg->cell_r.start_index);
+    printf("Cell end:  %d\n", reg->cell_r.end_index);
+    printf("Cell overshoot:%d\n\n", reg->cell_r.overshoot);
+    return;
+}
+*/
 
-#endif
