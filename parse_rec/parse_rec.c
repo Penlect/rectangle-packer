@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../rectangle_packer.h"
 #include "parse_rec.h"
 
 /* Return allocated pointer to each line in file,
@@ -82,8 +83,8 @@ static int *csvint_alloc(char *line, int *elements)
 /*Function used to sort rectangles by height, highest first */
 int compare_rec_height(const void *p, const void *q)
 {
-    struct rec x = *(const struct rec *)p;
-    struct rec y = *(const struct rec *)q;
+    Rectangle x = *(const Rectangle *)p;
+    Rectangle y = *(const Rectangle *)q;
 
     if(x.height == y.height){
         return 0;
@@ -99,10 +100,10 @@ int compare_rec_height(const void *p, const void *q)
 /* Parse file for rectangles and return allocated list of rectangles
  * in sorted order. Format for input file needs to be: "height,width\n"
  * for each row in. */
-struct rec *rec_list_alloc(FILE *fp, int *nr_reces)
+Rectangle *rec_list_alloc(FILE *fp, int *nr_reces)
 {
-    struct rec *recpt = NULL;
-    struct rec *recpt_temp = NULL;
+    Rectangle *recpt = NULL;
+    Rectangle *recpt_temp = NULL;
     size_t size = 0;
     char *line = NULL;
     int id = 0;
@@ -116,7 +117,7 @@ struct rec *rec_list_alloc(FILE *fp, int *nr_reces)
     /* Loop over each line in inputfile */
     while( (line = line_alloc(fp)) != NULL ){
         int *csv_integers;
-        struct rec temp;
+        Rectangle temp;
         int elements;
 
         size++;

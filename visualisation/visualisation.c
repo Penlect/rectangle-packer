@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 
-#include "../parse_rec/parse_rec.h"
+#include "../rectangle_packer.h"
 
 //Screen dimension constants
 #define SCREEN_WIDTH 1240
@@ -57,7 +57,7 @@ static void shutdown()
 	gRenderer = NULL;
 }
 
-int plot(struct rec *list, int length, int enclosing_width, int enclosing_height)
+int plot(Rectangle *list, int length, int enclosing_width, int enclosing_height)
 {
     int i;
 

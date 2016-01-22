@@ -3,10 +3,7 @@
 #include <string.h>
 
 #include "placing.h"
-#include "../parse_rec/parse_rec.h"
-
-#define SUCCESS 1
-#define FAIL 0
+#include "../../rectangle_packer.h"
 
 /* A Cell is a linked structure holding information about the cells.
  * height - the height of the cell.
@@ -61,7 +58,7 @@ typedef struct {
     Cell_range cell_r;
 } Region;
 
-static Placing *alloc_placing(int enclosing_width,int enclosing_height)
+static Placing *alloc_placing(int enclosing_width, int enclosing_height)
 {
     Placing *p_pt;
     Col *c_pt;
@@ -191,7 +188,7 @@ static Cell *step_offset(Cell *base, int offset)
     return cell;
 }
 
-static int find_region(Placing *placing, struct rec *rectangle, Region *reg)
+static int find_region(Placing *placing, Rectangle *rectangle, Region *reg)
 {
     Col *col;
     int i;
@@ -318,7 +315,7 @@ static int split(Placing *placing, Region *reg)
     return SUCCESS;
 }
 
-static int update(Placing *placing, struct rec *rectangle, Region *reg)
+static int update(Placing *placing, Rectangle *rectangle, Region *reg)
 {
     Col *col;
     Cell *cell;
@@ -358,7 +355,7 @@ static int update(Placing *placing, struct rec *rectangle, Region *reg)
     return SUCCESS;
 }
 
-static int add_rec(Placing *p, struct rec *r)
+static int add_rec(Placing *p, Rectangle *r)
 {
     int status;
     Region reg;
@@ -383,7 +380,7 @@ static int add_rec(Placing *p, struct rec *r)
     return status;
 }
 
-int do_placing(struct rec *list, int length, int enclosing_width, int enclosing_height)
+int do_placing(Rectangle *list, int length, int enclosing_width, int enclosing_height)
 {
     int i;
 
