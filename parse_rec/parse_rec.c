@@ -98,7 +98,7 @@ int compare_rec_height(const void *p, const void *q)
 }
 
 /* Parse file for rectangles and return allocated list of rectangles
- * in sorted order. Format for input file needs to be: "height,width\n"
+ * in sorted order. Format for input file needs to be: "width,height\n"
  * for each row in. */
 Rectangle *rec_list_alloc(FILE *fp, int *nr_reces)
 {
@@ -133,7 +133,7 @@ Rectangle *rec_list_alloc(FILE *fp, int *nr_reces)
             recpt = recpt_temp;
         }
         csv_integers = csvint_alloc(line, &elements);
-        /* We need at least two integers: height and width */
+        /* We need at least two integers: width and height */
         if(elements < 2){
             fprintf(stderr, "Error. There exists a row with less than two values.\n");
             /* Free all pointers if fail */
@@ -141,8 +141,8 @@ Rectangle *rec_list_alloc(FILE *fp, int *nr_reces)
             free(recpt);
             free(line);
         }
-        temp.height = csv_integers[0];
-        temp.width = csv_integers[1];
+        temp.width = csv_integers[0];
+        temp.height = csv_integers[1];
         /* -1 to indicate that the rectangle don't have a position */
         temp.x = -1; 
         temp.y = -1;

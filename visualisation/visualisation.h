@@ -4,5 +4,7 @@
 #include "../parse_rec/parse_rec.h"
 
 int plot(struct rec *list, int length, int enclosing_width, int enclosing_height);
+int init();
+int shutdown();
 
 #endif

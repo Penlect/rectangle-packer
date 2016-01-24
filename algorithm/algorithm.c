@@ -4,6 +4,8 @@
 #include "placing/placing.h"
 #include "../visualisation/visualisation.h"
 
+#include <SDL2/SDL.h>
+
 #include "algorithm.h"
 
 /* Finds the sum of all the rectangles' widths */
@@ -17,7 +19,7 @@ static void sum_w(Rectangle *list, int length, int *width)
     return;
 }
 
-/* Finds the max with of all the rectangles in list */
+/* Finds the max width of all the rectangles in list */
 static void max_w(Rectangle *list, int length, int *width)
 {
     int i;
@@ -41,6 +43,22 @@ static int total_area(Rectangle *list, int length)
     return area;
 }
 
+static int placing_width(Rectangle *list, int length)
+{
+    int i;
+    int width = 0;
+    for(i = 0; i < length; i++){
+        if(list[i].x == -1){
+            fprintf(stderr, "Error. Can't compute placing_width if not all rectangles have been placed.\n");
+            return -1;
+        }
+        if(list[i].width + list[i].x >= width){
+            width = list[i].width + list[i].x;
+        }
+    }
+    return width;
+}
+
 /*
 static void result(Rectangle *list, int length)
 {
@@ -62,12 +80,16 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
 
     sum_w(list, length, &en->width); 
     max_w(list, length, &max_width);
+    /* Set initial enc. height to max height */
     en->height = list[0].height;
+
+    /* Do test placing and set enc. width to obtained placing width */
+    status = do_placing(list, length, en->width, en->height);
+    en->width = placing_width(list, length);
+
     area = en->height*en->width;
     state = DO_PLACING;
 
-    int loop = 1;
-    int a, b;
     /* Find start enclosing w = sum, h = max
      * do placing
      * - if success save area
@@ -78,7 +100,21 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
      * if en width = max: stop
      *
      *   */
+
+    /* Start up SDL and create window */
+	if( !init() ){
+		printf( "Failed to initialize!\n" );
+	}
+    int quit = 0;
+    SDL_Event e;
+    int loop = 1;
     while(loop){
+        while( SDL_PollEvent( &e ) != 0 ){
+            /* User requests quit */
+            if( e.type == SDL_QUIT ){
+                quit = 1;
+            }
+        }
         switch(state){
             case DO_PLACING:
                 /* Try to place the rectangles in enclosing rectangle.
@@ -86,10 +122,13 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                  * If fail, increase height and try again. */
                 status = do_placing(list, length, en->width, en->height);
                 if(status == 1){
-                    a = en->width;
-                    b = en->height;
                     area = en->height*en->width;
-                    printf("area = %d\n", area);
+
+                    if(en->width == placing_width(list, length)){
+                        plot(list, length, en->width, en->height);
+                        SDL_Delay(1000);
+                    }
+
                     state = DEC_WIDTH;
                 }
                 else{
@@ -110,9 +149,10 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 break;
             case INC_HEIGHT:
                 /* Decrease enclosing height and try do placing again. But if the
-                 * new height makes the total area greather than the total
-                 * area of all the rectangles - decrease enclosing width and
-                 * start over */
+                 * new height makes the enclosing area smaller than the total
+                 * area of all the rectangles - increase enclosing height and
+                 * start over. If enclsing area is grather than the best enclosing
+                 * area so-far - decrease the enclosing width and start over. */
                 en->height++;
                 if(en->height*en->width < tot_area){
                     state = INC_HEIGHT;
@@ -125,13 +165,20 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 }
                 break;
             case STOP:
-                /* Algorithm stops. Present best solution. */
-                printf("Klart\n");
-                do_placing(list, length, a, b);
-                plot(list, length, a, b);
+                /* Algorithm stops. */
                 loop = 0;
                 break;
         }
     }
+    while(!quit){
+        while( SDL_PollEvent( &e ) != 0 ){
+            /* User requests quit */
+            if( e.type == SDL_QUIT ){
+                quit = 1;
+            }
+        }
+    }
+	/* Free resources and shutdown SDL */
+	shutdown();
     return SUCCESS;
 }

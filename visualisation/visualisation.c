@@ -5,8 +5,8 @@
 #include "../rectangle_packer.h"
 
 //Screen dimension constants
-#define SCREEN_WIDTH 1240
-#define SCREEN_HEIGHT 880
+#define SCREEN_WIDTH 840
+#define SCREEN_HEIGHT 780
 
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
@@ -14,7 +14,7 @@ SDL_Window* gWindow = NULL;
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
-static bool init()
+bool init()
 {
 	//Initialization flag
 	bool success = true;
@@ -48,7 +48,7 @@ static bool init()
 	return success;
 }
 
-static void shutdown()
+void shutdown()
 {
 	//Destroy window	
 	SDL_DestroyRenderer( gRenderer );
@@ -61,59 +61,31 @@ int plot(Rectangle *list, int length, int enclosing_width, int enclosing_height)
 {
     int i;
 
-	//Start up SDL and create window
-	if( !init() ){
-		printf( "Failed to initialize!\n" );
-	}
-	else{
-        //Main loop flag
-        bool quit = false;
+    //Clear screen
+    SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
+    SDL_RenderClear( gRenderer );
 
-        //Event handler
-        SDL_Event e;
+    SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+    SDL_Rect enclosing = {0, 0, enclosing_width, enclosing_height};
+    SDL_RenderFillRect( gRenderer, &enclosing );
 
-        //While application is running
-        while( !quit ){
-            //Handle events on queue
-            while( SDL_PollEvent( &e ) != 0 ){
-                //User requests quit
-                if( e.type == SDL_QUIT ){
-                    quit = true;
-                }
-            }
+    for(i = 0; i < length; i++){
 
-            //Clear screen
-            SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0x00, 0x00 );
-            SDL_RenderClear( gRenderer );
+        //Render red filled quad
+        SDL_Rect fillRect = {list[i].x, list[i].y, list[i].width, list[i].height};
+        SDL_SetRenderDrawColor( gRenderer, i*40%0xFF, (i*12 + i*i*5)%0xFF + 0x40, i*i%0xFF, 0x00 );		
+        SDL_RenderFillRect( gRenderer, &fillRect );
+        
+        //Draw blue horizontal line
+        //SDL_SetRenderDrawColor( gRenderer, i*40%0xFF, (i*12 + i*i*5)%0xFF, i*i%0xFF, 0x00 );		
+        SDL_RenderDrawLine( gRenderer, 0, list[i].y + list[i].height, SCREEN_WIDTH, list[i].y + list[i].height );
+        SDL_RenderDrawLine( gRenderer, list[i].x + list[i].width, 0, list[i].x + list[i].width, SCREEN_HEIGHT );
 
-            SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-            SDL_Rect enclosing = {0, 0, enclosing_width, enclosing_height};
-            SDL_RenderFillRect( gRenderer, &enclosing );
+        //Update screen
 
-            for(i = 0; i < length; i++){
+    }
 
-                //Render red filled quad
-                SDL_Rect fillRect = {list[i].x, list[i].y, list[i].width, list[i].height};
-                SDL_SetRenderDrawColor( gRenderer, i*40%0xFF, (i*12 + i*i*5)%0xFF + 0x40, i*i%0xFF, 0x00 );		
-                SDL_RenderFillRect( gRenderer, &fillRect );
-                
-                //Draw blue horizontal line
-                //SDL_SetRenderDrawColor( gRenderer, i*40%0xFF, (i*12 + i*i*5)%0xFF, i*i%0xFF, 0x00 );		
-                SDL_RenderDrawLine( gRenderer, 0, list[i].y + list[i].height, SCREEN_WIDTH, list[i].y + list[i].height );
-                SDL_RenderDrawLine( gRenderer, list[i].x + list[i].width, 0, list[i].x + list[i].width, SCREEN_HEIGHT );
-
-                //Update screen
-
-            }
-
-
-            SDL_RenderPresent( gRenderer );
-
-		}
-	}
-
-	//Free resources and shutdown SDL
-	shutdown();
+    SDL_RenderPresent( gRenderer );
 
 	return 0;
 }

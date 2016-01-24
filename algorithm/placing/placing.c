@@ -169,6 +169,7 @@ static int try_fit_height_in_col(Col *col, int height, Cell_range *cell_r)
     return 0;
 }
 
+/* Jump forward 'offest' cells relative to base */
 static Cell *step_offset(Cell *base, int offset)
 {
     int i;
@@ -188,6 +189,7 @@ static Cell *step_offset(Cell *base, int offset)
     return cell;
 }
 
+/* Find region in which the rectangle can fit */
 static int find_region(Placing *placing, Rectangle *rectangle, Region *reg)
 {
     Col *col;
@@ -315,6 +317,7 @@ static int split(Placing *placing, Region *reg)
     return SUCCESS;
 }
 
+/* Update the cells in placing so that they are correctly occupied */
 static int update(Placing *placing, Rectangle *rectangle, Region *reg)
 {
     Col *col;
@@ -385,7 +388,6 @@ int do_placing(Rectangle *list, int length, int enclosing_width, int enclosing_h
     int i;
 
     Placing *p = alloc_placing(enclosing_width, enclosing_height);
-
     for(i = 0; i < length; i++){
         if(!add_rec(p, list + i)){
             free_placing(p);
