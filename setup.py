@@ -4,7 +4,7 @@ with open('README.md') as readme_file:
     long_description = readme_file.read()
 
 setup(
-    name='rectangle-packing',
+    name='rectangle-packer',
     version='1.0.0',
     author='Daniel Andersson',
     author_email='daniel.4ndersson@gmail.com',
@@ -13,9 +13,10 @@ setup(
     license='MIT',
     keywords='pack rectangle packing rectangles enclosing',
     url='https://github.com/Penlect/rectangle-packer',
-    ext_modules=[Extension('rpack',sources=['rpack.c',
-                                            'algorithm/algorithm.c',
-                                            'algorithm/placing/placing.c'])],
+    ext_modules=[Extension('rpack',sources=['src/rpack.c',
+                                            'src/algorithm.c',
+                                            'src/placing.c'],
+                           include_dirs=['include'])],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
