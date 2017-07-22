@@ -1,61 +1,61 @@
 
 from collections import namedtuple
-import random
+import unittest
 
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from matplotlib.pyplot import cm
-import numpy as np
+import rpack
 
-import rpack as hw
-
-R = namedtuple('R', 'id width height x y')
-
-print(hw.helloworld())
-print()
-
-test1 = [
-    (12,32),
-    (43,145),
-    (123,56),
-    (34,244),
-    (54,234),
-    (2,4)
-]
-test1 = list(sorted(test1, key=lambda x: -x[-1]))
-print(test1)
-
-test1 = [
-    (40,48),
-    (22,32),
-    (95,26),
-    (83,11)
-]
+R = namedtuple('R', 'width height x y')
 
 
-result = [R(*[item[0], *item[1], *item[2]]) for item in hw.pack(test1)]
+def enclosing_size(sizes, positions):
+    """Return enclosing size of rectangles having sizes and positions"""
+    rectangles = [R(*size, *pos) for size, pos in zip(sizes, positions)]
+    width = max(r.width + r.x for r in rectangles)
+    height = max(r.height + r.y for r in rectangles)
+    return width, height
 
-width = max(r.width + r.x for r in result)
-height = max(r.height + r.y for r in result)
-print(width, height)
-norm = max(width, height)
 
-print(result)
+class TestPack(unittest.TestCase):
+    def test_enclosing_size(self):
+        """Single rectangle should be positioned in origin"""
+        sizes = [(3, 5), (1, 1), (1, 1)]
+        positions = [(0, 0), (3, 0), (0, 5)]
+        width, height = enclosing_size(sizes, positions)
+        self.assertEqual(width, 4)
+        self.assertEqual(height, 6)
 
-color=cm.rainbow(np.linspace(0.2, 0.8, len(result)))
-fig1 = plt.figure()
-ax1 = fig1.add_subplot(111, aspect='equal')
-ax1.set_xlim([0,norm])
-ax1.set_ylim([0,norm])
-ax1.grid()
-for r, c in zip(result, color):
-    ax1.add_patch(
-        patches.Rectangle(
-            (r.x, r.y),   # (x,y)
-            r.width,          # width
-            r.height,          # height
-            facecolor=c
-        )
-    )
-plt.gca().invert_yaxis()
-plt.show()
+    def test_origin(self):
+        """Single rectangle should be positioned in origin"""
+        rectangles = [(3, 5)]
+        positions = [(0, 0)]
+        self.assertEqual(rpack.pack(rectangles), positions)
+
+    def test_basic_pack(self):
+        """Single rectangle should be positioned in origin"""
+        sizes = [(2, 2), (2, 2), (2, 2), (3, 3)]
+        positions = rpack.pack(sizes)
+        width, height = enclosing_size(sizes, positions)
+        self.assertEqual(width*height, 25)
+
+    def test_medium_pack(self):
+        sizes = [(i, i) for i in range(20, 1, -1)]
+        positions = rpack.pack(sizes)
+        width, height = enclosing_size(sizes, positions)
+        self.assertLessEqual(width*height, 3045)
+
+    def test_empty(self):
+        """Empty input should give empty output"""
+        rectangles = []
+        positions = []
+        self.assertEqual(rpack.pack(rectangles), positions)
+
+    def test_valueerror(self):
+        """Non-number should raise ValueError"""
+        # Todo: SystemError
+        with self.assertRaises(SystemError):
+            rectangles = [('sd', 5)]
+            rpack.pack(rectangles)
+
+
+if __name__ == '__main__':
+    unittest.main()
