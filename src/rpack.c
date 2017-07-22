@@ -81,7 +81,9 @@ pack(PyObject* self, PyObject* args)
     
 	r_list = rectangle_list_alloc(args, &length);
     if(r_list == NULL){
-        return NULL;
+        /* This should happen when args was empty sequence,
+        - return empty list. */
+        return Py_BuildValue("[]");
     }
     
     /* Run the algorithm with the provided rectangles, and
