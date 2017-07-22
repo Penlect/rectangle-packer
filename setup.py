@@ -17,6 +17,7 @@ setup(
                                             'src/algorithm.c',
                                             'src/placing.c'],
                            include_dirs=['include'])],
+    include_package_data=True,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
