@@ -102,6 +102,7 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                  * If fail, increase height and try again. */
                 status = do_placing(list, length, en->width, en->height);
                 if(status == 1){
+                    en->width = placing_width(list, length);
                     area = en->height*en->width;
                     min_w = en->width;
                     min_h = en->height;
@@ -116,6 +117,7 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 /* Decrease enclosing width and try do placing again. But if the
                  * new width is smaller than the rectangles' maximum width
                  * - stop the algorithm and present the best solution */
+                 
                 en->width--; // Improve later
                 if(en->width < max_width){
                     state = STOP;
