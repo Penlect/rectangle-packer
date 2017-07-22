@@ -2,9 +2,6 @@
 
 #include "../rectangle_packer.h"
 #include "placing/placing.h"
-#include "../visualisation/visualisation.h"
-
-#include <SDL2/SDL.h>
 
 #include "algorithm.h"
 
@@ -59,16 +56,6 @@ static int placing_width(Rectangle *list, int length)
     return width;
 }
 
-/*
-static void result(Rectangle *list, int length)
-{
-    int i;
-    for(i = 0; i < length; i++){
-        printf("%d,%d,%d,%d\n", list[i].width, list[i].height, list[i].x, list[i].y);
-    }
-    return;
-}
-*/
 
 int algorithm(Rectangle *list, int length, Enclosing *en)
 {
@@ -101,20 +88,8 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
      *
      *   */
 
-    /* Start up SDL and create window */
-	if( !init() ){
-		printf( "Failed to initialize!\n" );
-	}
-    int quit = 0;
-    SDL_Event e;
     int loop = 1;
     while(loop){
-        while( SDL_PollEvent( &e ) != 0 ){
-            /* User requests quit */
-            if( e.type == SDL_QUIT ){
-                quit = 1;
-            }
-        }
         switch(state){
             case DO_PLACING:
                 /* Try to place the rectangles in enclosing rectangle.
@@ -123,11 +98,6 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 status = do_placing(list, length, en->width, en->height);
                 if(status == 1){
                     area = en->height*en->width;
-
-                    if(en->width == placing_width(list, length)){
-                        plot(list, length, en->width, en->height);
-                        SDL_Delay(1000);
-                    }
 
                     state = DEC_WIDTH;
                 }
@@ -170,15 +140,5 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 break;
         }
     }
-    while(!quit){
-        while( SDL_PollEvent( &e ) != 0 ){
-            /* User requests quit */
-            if( e.type == SDL_QUIT ){
-                quit = 1;
-            }
-        }
-    }
-	/* Free resources and shutdown SDL */
-	shutdown();
     return SUCCESS;
 }
