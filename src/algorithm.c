@@ -64,7 +64,8 @@ static int placing_width(Rectangle *list, int length)
 int algorithm(Rectangle *list, int length, Enclosing *en)
 {
     int max_width, max_height;
-    int area, min_w, min_h;
+    int area = -1;
+    int min_w = -1, min_h = -1;
     int status;
     enum theState {DO_PLACING, DEC_WIDTH, INC_HEIGHT, STOP} state;
     int tot_area = total_area(list, length);
@@ -145,6 +146,9 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 loop = 0;
                 break;
         }
+    }
+    if(min_w == -1 || min_h == -1){
+        return FAIL;
     }
     /* Do a final placing with the opimal found widht and height
       (To erase dirty x,y values on rectangles) */
