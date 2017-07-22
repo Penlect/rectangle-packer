@@ -91,7 +91,7 @@ pack(PyObject* self, PyObject* arg)
 	Rectangle r;
 	for(Py_ssize_t i=0; i<n; i++){
 		r = r_list[i];
-		PyObject* rec = Py_BuildValue("i(ii)(ii)", r.id, r.width, r.height, r.x, r.y);
+		PyObject* rec = Py_BuildValue("(ii)", r.x, r.y);
 		PyList_SetItem(output_list, i, rec);
 	}
 	free(r_list);
