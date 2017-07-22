@@ -21,7 +21,7 @@ static void max_wh(Rectangle *list, int length, int *width, int *height)
 {
     int i;
     *width = 0;
-	*height = 0;
+    *height = 0;
     for(i = 0; i < length; i++){
         if(list[i].width >= *width){
             *width = list[i].width;
@@ -64,7 +64,7 @@ static int placing_width(Rectangle *list, int length)
 int algorithm(Rectangle *list, int length, Enclosing *en)
 {
     int max_width, max_height;
-    int area;
+    int area, min_w, min_h;
     int status;
     enum theState {DO_PLACING, DEC_WIDTH, INC_HEIGHT, STOP} state;
     int tot_area = total_area(list, length);
@@ -102,6 +102,8 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 status = do_placing(list, length, en->width, en->height);
                 if(status == 1){
                     area = en->height*en->width;
+                    min_w = en->width;
+                    min_h = en->height;
 
                     state = DEC_WIDTH;
                 }
@@ -113,7 +115,7 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 /* Decrease enclosing width and try do placing again. But if the
                  * new width is smaller than the rectangles' maximum width
                  * - stop the algorithm and present the best solution */
-                en->width--;
+                en->width--; // Improve later
                 if(en->width < max_width){
                     state = STOP;
                 }
@@ -122,7 +124,7 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 }
                 break;
             case INC_HEIGHT:
-                /* Decrease enclosing height and try do placing again. But if the
+                /* Increase enclosing height and try do placing again. But if the
                  * new height makes the enclosing area smaller than the total
                  * area of all the rectangles - increase enclosing height and
                  * start over. If enclsing area is grather than the best enclosing
@@ -144,5 +146,9 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 break;
         }
     }
+    /* Do a final placing with the opimal found widht and height
+      (To erase dirty x,y values on rectangles) */
+    status = do_placing(list, length, min_w, min_h);
+    
     return SUCCESS;
 }
