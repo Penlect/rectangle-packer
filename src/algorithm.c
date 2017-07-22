@@ -17,13 +17,17 @@ static void sum_w(Rectangle *list, int length, int *width)
 }
 
 /* Finds the max width of all the rectangles in list */
-static void max_w(Rectangle *list, int length, int *width)
+static void max_wh(Rectangle *list, int length, int *width, int *height)
 {
     int i;
     *width = 0;
+	*height = 0;
     for(i = 0; i < length; i++){
         if(list[i].width >= *width){
             *width = list[i].width;
+        }
+        if(list[i].height >= *height){
+            *height = list[i].height;
         }
     }
     return;
@@ -59,16 +63,16 @@ static int placing_width(Rectangle *list, int length)
 
 int algorithm(Rectangle *list, int length, Enclosing *en)
 {
-    int max_width;
+    int max_width, max_height;
     int area;
     int status;
     enum theState {DO_PLACING, DEC_WIDTH, INC_HEIGHT, STOP} state;
     int tot_area = total_area(list, length);
 
     sum_w(list, length, &en->width); 
-    max_w(list, length, &max_width);
+    max_wh(list, length, &max_width, &max_height);
     /* Set initial enc. height to max height */
-    en->height = list[0].height;
+    en->height = max_height;
 
     /* Do test placing and set enc. width to obtained placing width */
     status = do_placing(list, length, en->width, en->height);

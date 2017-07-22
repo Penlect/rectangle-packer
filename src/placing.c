@@ -128,8 +128,11 @@ static void free_placing(Placing *placing)
 
 static int try_fit_height_in_col(Col *col, int height, Cell_range *cell_r)
 {
-    int i;
-    Cell *cell = NULL;
+	/* Loop over the cells in the column to find a consecutive sequence of cells
+	which is not occupied that have a hight greater than 'height'. Result is set
+	in cell_r */
+    int i; // Loop index
+    Cell *cell = NULL; // Will point to each cell as we loop over col
     int sum_height = 0;
 
     if(col == NULL){
@@ -273,6 +276,7 @@ static int split(Placing *placing, Region *reg)
         }
     }
 
+    /* We only need to split if we have overshoot */
     if(reg->col_r.overshoot > 0){
         /* Split cols vertically */
         if(col_split_me == NULL){
@@ -376,7 +380,7 @@ static int add_rec(Placing *p, Rectangle *r)
 
     status = update(p, r, &reg);
     if(status == FAIL){
-        fprintf(stderr, "Error in splitting.\n");
+        fprintf(stderr, "Error in updating.\n");
         return FAIL;
     }
 
