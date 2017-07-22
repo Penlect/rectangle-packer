@@ -7,20 +7,12 @@
 #include "rectangle_packer.h"
 #include "algorithm.h"
 
-static void result(Rectangle *list, int length)
-{
-    int i;
-    for(i = 0; i < length; i++){
-        printf("%d,%d,%d,%d\n", list[i].width, list[i].height, list[i].x, list[i].y);
-    }
-    return;
-}
-
 static Rectangle*
-rectangle_list_alloc(PyObject* tuples){
-	/* recpt will be the list of rectangles */
-    Rectangle *recpt = NULL;
-    Rectangle *recpt_temp = NULL;
+rectangle_list_alloc(PyObject* tuples, int* length){
+	/* Convert a tuple from Python to a list of Rectangles,
+    don't forget to free the list when you are done with it. */
+    Rectangle *rectangles = NULL;
+    Rectangle *rectangles_temp = NULL;
     size_t size = 0;
 	int id = 0;
 	
@@ -30,85 +22,101 @@ rectangle_list_alloc(PyObject* tuples){
 	if(iterator == NULL){
 		return NULL;
 	}
-	while(item = PyIter_Next(iterator)){
+	while( (item = PyIter_Next(iterator)) ){
 		Rectangle r;
 		unsigned long width, height;
         size++;
 		id++;
-        /* Reallocate memory for new rec entry in list */
-        if( (recpt_temp = realloc(recpt, size*sizeof(*recpt))) == NULL ){
-            fprintf(stderr, "Error. Could not reallocate memory for rec list.\n");
+        /* Reallocate memory for new rectangle entry in list */
+        if( (rectangles_temp = realloc(rectangles, size*sizeof(*rectangles))) == NULL ){
+            fprintf(stderr, "Error. Could not reallocate memory for rectangle list.\n");
             /* Free all pointers if fail */
-            free(recpt);
-            free(item);
+            free(rectangles);
+            Py_DECREF(item);
+            Py_DECREF(iterator);
             return NULL;
         }
         else{
-            recpt = recpt_temp;
+            rectangles = rectangles_temp;
         }
-		PyObject* repr = PyObject_Repr(item);
-		char* str = PyUnicode_AsUTF8(repr);
-		printf("Item %d: %s\n", id, str);
-		Py_DECREF(repr);
 		PyObject* x = PySequence_GetItem(item, 0);
+        if(x == NULL){
+            return NULL;
+        }
 		PyObject* y = PySequence_GetItem(item, 1);
+        if(y == NULL){
+            return NULL;
+        }
 		width = PyLong_AsUnsignedLong(x);
 		height = PyLong_AsUnsignedLong(y);
 		Py_DECREF(x);
 		Py_DECREF(y);
 		Py_DECREF(item);
 		
-		printf("width: %d, height: %d\n", width, height);
-		
-        r.width = width;
-        r.height = height;
+		/* Set rectangle size */
+        r.width = (int) width;
+        r.height = (int) height;
         /* -1 to indicate that the rectangle don't have a position */
         r.x = -1; 
         r.y = -1;
+        /* Each rectangle has an id that must be non-zero */
         r.id = id;
-        recpt[size - 1] = r;
+        rectangles[size - 1] = r;
 	}
 	Py_DECREF(iterator);
-	
-	return recpt;
+	*length = id;
+	return rectangles;
 }
 
 static PyObject*
-pack(PyObject* self, PyObject* arg)
+pack(PyObject* self, PyObject* args)
 {
-	int n = PyObject_Length(arg);
-	printf("Len = %d\n", n);
-	Rectangle* r_list = rectangle_list_alloc(arg);
+    int length; // Nr of rectangles in input
+    Rectangle* r_list; // List of Rectangles
+    Enclosing en; // Enclosing area
+    PyObject* position; // Tuple (x, y) position of rectangle
+    PyObject* positions; // The result that will be returned
+    
+    /* args should be an iterable of tuples */
+    
+	r_list = rectangle_list_alloc(args, &length);
+    if(r_list == NULL){
+        return NULL;
+    }
+    
+    /* Run the algorithm with the provided rectangles, and
+    raise an exception if it for some strange reason would fail */
+    if(algorithm(r_list, length, &en) == FAIL){
+        free(r_list);
+        PyErr_SetString(PyExc_RuntimeError, "Unexpected error in algorithm implementation");
+        return NULL;
+    }
 	
-	result(r_list, n);
-	
-    Enclosing en;
-    algorithm(r_list, n, &en);
-	
-	result(r_list, n);
-	
-	PyObject* output_list = PyList_New((Py_ssize_t) n);
-	Rectangle r;
-	for(Py_ssize_t i=0; i<n; i++){
-		r = r_list[i];
-		PyObject* rec = Py_BuildValue("(ii)", r.x, r.y);
-		PyList_SetItem(output_list, i, rec);
+    /* Create empty positions' list */
+	positions = PyList_New((Py_ssize_t) length);
+    if(positions == NULL){
+        free(r_list);
+        return NULL;
+    }
+	for(Py_ssize_t index=0; index<length; index++){
+        /* Build tuple of x, y position of rectangle*/
+		position = Py_BuildValue("(ii)", r_list[index].x, r_list[index].y);
+        if(position == NULL){
+            free(r_list);
+            return NULL;
+        }
+        /* Insert position tuple in the list */
+		if(PyList_SetItem(positions, index, position) == -1){
+            free(r_list);
+            return NULL;
+        }
 	}
 	free(r_list);
-	return output_list;
-}
-
-static char text[] = "Example text!";
-
-static PyObject*
-helloworld(PyObject* self)
-{
-    return Py_BuildValue("s", "Hello, World!");
+	return positions;
 }
 
 /* The Module’s Method Table */
 static PyMethodDef rpack_funcs[] = {
-    {"helloworld", (PyCFunction)helloworld, METH_NOARGS, "return string 'Hello, World!'"},
     {"pack", (PyCFunction)pack, METH_O, "Pack rectangles"},
     {NULL}
 };
