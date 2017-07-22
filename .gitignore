@@ -4,4 +4,6 @@ dist/
 *.egg-info/
 *.pdf
 *.bat
+test/*.png
+test/*.txt
 py36/
