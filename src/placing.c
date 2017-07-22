@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "placing.h"
-#include "../../rectangle_packer.h"
+#include "rectangle_packer.h"
 
 /* A Cell is a linked structure holding information about the cells.
  * height - the height of the cell.

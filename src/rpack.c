@@ -5,7 +5,7 @@
 */
 #include <Python.h>
 #include "rectangle_packer.h"
-#include "algorithm/algorithm.h"
+#include "algorithm.h"
 
 static void result(Rectangle *list, int length)
 {

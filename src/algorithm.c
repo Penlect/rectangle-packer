@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "../rectangle_packer.h"
-#include "placing/placing.h"
+#include "rectangle_packer.h"
+#include "placing.h"
 
 #include "algorithm.h"
 
