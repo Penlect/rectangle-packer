@@ -1,2 +1,7 @@
-*.o
-*.txt
+.idea/
+build/
+dist/
+*.egg-info/
+*.pdf
+*.bat
+py36/
