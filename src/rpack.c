@@ -117,18 +117,32 @@ pack(PyObject* self, PyObject* args)
 	return positions;
 }
 
+PyDoc_STRVAR(pack__doc__,
+"Pack rectangles to minimum enclosing area\n\n"
+"Takes a sequence of tuples (w, h) as input where w is the width\n"
+"of the rectangle, and h the height (must be positive integers).\n"
+"Returns a sequence of positions (x, y) of the corresponding\n"
+"rectangles (upper left corner of rectangles). The rectangles\n"
+"will be positioned to minimize the enclosing area.\n"
+);
+
+PyDoc_STRVAR(rpack__doc__,
+"Pack rectangles to minimum enclosing area\n\n"
+"Given a set of rectangles with fixed orientations, we want to\n"
+"find an enclosing rectangle of minimum area that contains\n"
+"them all with no overlap.\n"
+);
+
 /* The Module’s Method Table */
 static PyMethodDef rpack_funcs[] = {
-    {"pack", (PyCFunction)pack, METH_O, "Pack rectangles"},
+    {"pack", (PyCFunction)pack, METH_O, pack__doc__},
     {NULL}
 };
-
-static char rpack_module_docs[] = "Module used to pack rectangles";
 
 static struct PyModuleDef rpack_module = {
 	PyModuleDef_HEAD_INIT,
 	"rpack",
-	rpack_module_docs,
+	rpack__doc__,
 	-1,
 	rpack_funcs
 };
