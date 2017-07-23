@@ -6,4 +6,4 @@ dist/
 *.bat
 test/*.png
 test/*.txt
-py36/
+py3*/
