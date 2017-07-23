@@ -3,7 +3,9 @@ from collections import namedtuple
 import datetime
 import time
 import math
+import random
 from random import randint
+random.seed(a=124)
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -38,21 +40,33 @@ def plot(sizes, append=''):
 
     ax1.set_xlim([0, norm])
     ax1.set_ylim([0, norm])
-    ax1.grid()
     for r, c in zip(rectangles, color):
         ax1.add_patch(
             patches.Rectangle(
                 (r.x, r.y),
                 r.width,
                 r.height,
-                facecolor=c
+                facecolor=c,
+                edgecolor='k'
             )
         )
+    ax1.add_patch(
+        patches.Rectangle(
+            (0, 0),
+            width,
+            height,
+            fill=False,
+            linewidth=2
+        )
+    )
+
     ax1.invert_yaxis()
 
     coverage = sum(w*h for w, h in sizes)/(width*height)
-    ax1.set_title(f'Coverage: {coverage:.3f}%, time: {(t1 - t0):.3f}s')
-    ax1.set_xlabel(f'Rectangles: {len(rectangles)} st')
+    ax1.set_title(f'Area coverage: {coverage:.3f}%, t = {(t1 - t0):.3f}s')
+    ax1.yaxis.set_label_position("right")
+    ax1.set_ylabel(f'Enclosing height: {height}')
+    ax1.set_xlabel(f'Enclosing width: {width}')
 
     timestamp = '{:%Y-%m-%d_%H%M%S}'.format(datetime.datetime.now())
     branch = Repository('..').head.shorthand
@@ -113,5 +127,6 @@ def run_timer():
     plt.plot(x, y, '*', x, [p(a) for a in x], '-')
     plt.show()
 
-run_plots()
-run_timer()
+if __name__ == '__main__':
+    run_plots()
+    run_timer()
