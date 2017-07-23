@@ -6,12 +6,14 @@
 #include "algorithm.h"
 
 /* Finds the sum of all the rectangles' widths */
-static void sum_w(Rectangle *list, int length, int *width)
+static void sum_wh(Rectangle *list, int length, int *width, int *height)
 {
     int i;
     *width = 0;
+    *height = 0;
     for(i = 0; i < length; i++){
         *width += list[i].width;
+        *height += list[i].height;
     }
     return;
 }
@@ -63,21 +65,18 @@ static int placing_width(Rectangle *list, int length)
 
 int algorithm(Rectangle *list, int length, Enclosing *en)
 {
-    int max_width, max_height;
+    int max_width, max_height, sum_width, sum_height;
     int area = -1;
     int min_w = -1, min_h = -1;
     int status;
     enum theState {DO_PLACING, DEC_WIDTH, INC_HEIGHT, STOP} state;
     int tot_area = total_area(list, length);
 
-    sum_w(list, length, &en->width); 
+    sum_wh(list, length, &sum_width, &sum_height); 
     max_wh(list, length, &max_width, &max_height);
     /* Set initial enc. height to max height */
     en->height = max_height;
-
-    /* Do test placing and set enc. width to obtained placing width */
-    status = do_placing(list, length, en->width, en->height);
-    en->width = placing_width(list, length);
+    en->width = sum_width;
 
     area = en->height*en->width;
     state = DO_PLACING;
@@ -103,6 +102,7 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                 status = do_placing(list, length, en->width, en->height);
                 if(status == 1){
                     en->width = placing_width(list, length);
+                    
                     area = en->height*en->width;
                     min_w = en->width;
                     min_h = en->height;
@@ -118,7 +118,7 @@ int algorithm(Rectangle *list, int length, Enclosing *en)
                  * new width is smaller than the rectangles' maximum width
                  * - stop the algorithm and present the best solution */
                  
-                en->width--; // Improve later
+                en->width--;
                 if(en->width < max_width){
                     state = STOP;
                 }
