@@ -11,7 +11,7 @@ setup(
     description='Pack a set of rectangles into an enclosing rectangle with minimum area',
     long_description=long_description,
     license='MIT',
-    keywords='pack rectangle packing rectangles enclosing',
+    keywords='pack rectangle packing rectangles enclosing 2D',
     url='https://github.com/Penlect/rectangle-packer',
     ext_modules=[Extension('rpack',sources=['src/rpack.c',
                                             'src/algorithm.c',
