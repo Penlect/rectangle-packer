@@ -5,19 +5,19 @@ Given a set of rectangles with fixed orientations, we want to
 find an enclosing rectangle of minimum area that contains
 them all with no overlap.
 
-This project is inspired of the blog post [Fast Optimizing Rectangle Packing Algorithm for Building CSS Sprites](http://www.codeproject.com/Articles/210979/Fast-optimizing-rectangle-packing-algorithm-for-bu) written by Matt Perdeck.
+This project is inspired by the blog post [Fast Optimizing Rectangle Packing Algorithm for Building CSS Sprites](http://www.codeproject.com/Articles/210979/Fast-optimizing-rectangle-packing-algorithm-for-bu) written by Matt Perdeck.
 
 ![Alt text](example.png "Example")
 
 ## Installation
 
-Download the package or clone the repository, and then install with:
+Download the package or clone the repository, then install with:
 
 ```bash
 python setup.py install
 ```
 
-or use PyPi:
+or use pypi:
 
 ```bash
 pip install rectangle-packer
@@ -45,9 +45,13 @@ These positions will yield a packing with no overlaps and enclosing
 area as small as possible.
 
 *For best result, sort the rectangles by height, highest first,
-before running* ``rpack.pack``. The algorithm is probably far from the
-best there exists. But in most cases it gives quite good results.
+before running* ``rpack.pack``. The algorithm is probably far from
+the best available. But in most cases it gives quite good results.
 
 Note that you can only provide positive integers as rectangle width
 and height.
+
+## Example
+
+![Alt text](example2.png "Example")
 
