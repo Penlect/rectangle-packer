@@ -7,3 +7,4 @@ dist/
 test/*.png
 test/*.txt
 py3*/
+venv/
