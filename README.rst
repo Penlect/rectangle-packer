@@ -62,7 +62,8 @@ the best available. But in most cases it gives quite good results.
 Note that you can only provide **positive integers** as rectangle width
 and height.
 
-## Example
+Examples
+--------
 
 .. image:: example2.png
     :alt: Example2
