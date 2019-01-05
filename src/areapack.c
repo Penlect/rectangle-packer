@@ -2,16 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "placing.h"
-#include "rectangle_packer.h"
+#include "areapack.h"
+
 
 /* A Cell is a linked structure holding information about the cells.
  * height - the height of the cell.
  * occupied - if the cell is occupied this value will be nonzero.
  * next_cell - next cell right under the current cell. */
 struct cell {
-    int height;
-    int occupied;
+    long height;
+    long occupied;
     struct cell *next_cell;
 };
 typedef struct cell Cell;
@@ -21,7 +21,7 @@ typedef struct cell Cell;
  * cell - pointer to the root cell in this column (heighest cell).
  * next_col - next column to the right of the current column */
 struct col {
-    int width;
+    long width;
     Cell *cell;
     struct col *next_col;
 };
@@ -36,21 +36,21 @@ typedef struct col Col;
  * cols - pointer to the column positioned farthest to the left.
  * */
 typedef struct {
-    int enclosing_height;
-    int enclosing_width;
+    long enclosing_height;
+    long enclosing_width;
     Col *cols;
 } Placing;
 
 typedef struct {
-    int start_index;
-    int end_index;
-    int overshoot; /* Length overshoot in cell at end_index */
-} Cell_range; 
+    long start_index;
+    long end_index;
+    long overshoot; /* Length overshoot in cell at end_index */
+} Cell_range;
 
 typedef struct {
-    int start_index;
-    int end_index;
-    int overshoot;
+    long start_index;
+    long end_index;
+    long overshoot;
 } Col_range;
 
 typedef struct {
@@ -58,7 +58,7 @@ typedef struct {
     Cell_range cell_r;
 } Region;
 
-static Placing *alloc_placing(int enclosing_width, int enclosing_height)
+static Placing *alloc_placing(long enclosing_width, long enclosing_height)
 {
     Placing *p_pt;
     Col *c_pt;
@@ -109,7 +109,7 @@ static void free_placing(Placing *placing)
     }
     /* Loop over the columns and free them and the cells */
     col = placing->cols;
-    while(col != NULL){ 
+    while(col != NULL){
         /* Free all cells for this col */
         Cell *cell = col->cell;
         while(cell != NULL){
@@ -126,14 +126,14 @@ static void free_placing(Placing *placing)
     return;
 }
 
-static int try_fit_height_in_col(Col *col, int height, Cell_range *cell_r)
+static long try_fit_height_in_col(Col *col, long height, Cell_range *cell_r)
 {
 	/* Loop over the cells in the column to find a consecutive sequence of cells
 	which is not occupied that have a hight greater than 'height'. Result is set
 	in cell_r */
-    int i; // Loop index
+    long i; // Loop index
     Cell *cell = NULL; // Will point to each cell as we loop over col
-    int sum_height = 0;
+    long sum_height = 0;
 
     if(col == NULL){
         fprintf(stderr, "Error. col pointer was NULL.\n");
@@ -167,15 +167,15 @@ static int try_fit_height_in_col(Col *col, int height, Cell_range *cell_r)
             }
             sum_height += cell->height;
         }
-    } 
+    }
     /* If we arrive here the rectangle did't fit in the column */
     return 0;
 }
 
 /* Jump forward 'offest' cells relative to base */
-static Cell *step_offset(Cell *base, int offset)
+static Cell *step_offset(Cell *base, long offset)
 {
-    int i;
+    long i;
     Cell *cell = base;
 
     if(base == NULL){
@@ -193,15 +193,15 @@ static Cell *step_offset(Cell *base, int offset)
 }
 
 /* Find region in which the rectangle can fit */
-static int find_region(Placing *placing, Rectangle *rectangle, Region *reg)
+static long find_region(Placing *placing, Rectangle *rectangle, Region *reg)
 {
     Col *col;
-    int i;
+    long i;
     /* Loop over every column */
     for(col = placing->cols, i = 0; col != NULL; col=col->next_col, i++){
         Col_range col_r;
         Cell_range cell_r;
-        int sum_width = 0;
+        long sum_width = 0;
         Col *temp;
 
         /* Check if this column can fit rectangle's height */
@@ -242,11 +242,11 @@ static int find_region(Placing *placing, Rectangle *rectangle, Region *reg)
     return FAIL;
 }
 
-static int split(Placing *placing, Region *reg)
+static long split(Placing *placing, Region *reg)
 {
     Col *col = NULL;
     Cell *cell = NULL;
-    int i;
+    long i;
     Col *col_split_me = NULL;
 
     /* Split cells horizontally */
@@ -264,7 +264,7 @@ static int split(Placing *placing, Region *reg)
             new_cell->height = cell->height - reg->cell_r.overshoot;
             new_cell->occupied = cell->occupied;
             new_cell->next_cell = cell->next_cell;
-            
+
             /* Update the old cell */
             cell->height = reg->cell_r.overshoot;
             cell->next_cell = new_cell;
@@ -322,15 +322,15 @@ static int split(Placing *placing, Region *reg)
 }
 
 /* Update the cells in placing so that they are correctly occupied */
-static int update(Placing *placing, Rectangle *rectangle, Region *reg)
+static long update(Placing *placing, Rectangle *rectangle, Region *reg)
 {
     Col *col;
     Cell *cell;
-    int i;
-    int k;
-    int x = 0;
-    int y = 0;
-    int done = 0;
+    long i;
+    long k;
+    long x = 0;
+    long y = 0;
+    long done = 0;
     if(rectangle->id == 0){
         fprintf(stderr, "Error. Rectangle can't have id = 0.\n");
         return FAIL;
@@ -362,9 +362,9 @@ static int update(Placing *placing, Rectangle *rectangle, Region *reg)
     return SUCCESS;
 }
 
-static int add_rec(Placing *p, Rectangle *r)
+static long add_rec(Placing *p, Rectangle *r)
 {
-    int status;
+    long status;
     Region reg;
 
     status = find_region(p, r, &reg);
@@ -387,9 +387,9 @@ static int add_rec(Placing *p, Rectangle *r)
     return status;
 }
 
-int do_placing(Rectangle *list, int length, int enclosing_width, int enclosing_height)
+static long do_placing(Rectangle *list, size_t length, long enclosing_width, long enclosing_height)
 {
-    int i;
+    size_t i = 0;
 
     Placing *p = alloc_placing(enclosing_width, enclosing_height);
     for(i = 0; i < length; i++){
@@ -401,41 +401,157 @@ int do_placing(Rectangle *list, int length, int enclosing_width, int enclosing_h
     free_placing(p);
     return SUCCESS;
 }
-/*
-static void print_placing(Placing *placing)
+
+/* Finds the sum of all the rectangles' widths */
+static void sum_wh(Rectangle *list, size_t length, long *width, long *height)
 {
-    Col *col = NULL;
-    Cell *cell = NULL;
-    int i, k;
-    printf("-------- PLACEMENT --------\n");
-    printf("---Enclosing height:%d\n", placing->enclosing_height);
-    printf("---Enclosing width:%d\n", placing->enclosing_width);
-    for(col = placing->cols, i = 0; col != NULL; col = col->next_col, i++){
-        printf("C%3d, w%3d: ", i, col->width);
-        for(cell = col->cell, k = 0; cell != NULL; cell = cell->next_cell, k++){
-            if(cell->occupied){
-                printf("%3dX%d, ", cell->height, cell->occupied);
-            }
-            else{
-                printf("%3d__, ", cell->height);
-            }
-        }
-        printf("\n");
+    size_t i = 0;
+    *width = 0;
+    *height = 0;
+    for(i = 0; i < length; i++){
+        *width += list[i].width;
+        *height += list[i].height;
     }
-    printf("\n");
     return;
 }
 
-static void print_region(Region *reg)
+/* Finds the max width of all the rectangles in list */
+static void max_wh(Rectangle *list, size_t length, long *width, long *height)
 {
-    printf("-------- REGION --------\n");
-    printf("Col start:%d\n", reg->col_r.start_index);
-    printf("Col end:  %d\n", reg->col_r.end_index);
-    printf("Col overshoot:%d\n", reg->col_r.overshoot);
-    printf("Cell start:%d\n", reg->cell_r.start_index);
-    printf("Cell end:  %d\n", reg->cell_r.end_index);
-    printf("Cell overshoot:%d\n\n", reg->cell_r.overshoot);
+    size_t i = 0;
+    *width = 0;
+    *height = 0;
+    for(i = 0; i < length; i++){
+        if(list[i].width >= *width){
+            *width = list[i].width;
+        }
+        if(list[i].height >= *height){
+            *height = list[i].height;
+        }
+    }
     return;
 }
-*/
 
+/* Compute the total area of all the rectangles in list */
+static long total_area(Rectangle *list, size_t length)
+{
+    long area = 0;
+    size_t i = 0;
+    for(i = 0; i < length; i++){
+        area += list[i].height*list[i].width;
+    }
+    return area;
+}
+
+static long placing_width(Rectangle *list, size_t length)
+{
+    size_t i = 0;
+    long width = 0;
+    for(i = 0; i < length; i++){
+        if(list[i].x == -1){
+            fprintf(stderr, "Error. Can't compute placing_width if not all rectangles have been placed.\n");
+            return -1;
+        }
+        if(list[i].width + list[i].x >= width){
+            width = list[i].width + list[i].x;
+        }
+    }
+    return width;
+}
+
+
+long areapack_algorithm(Rectangle *list, size_t length, Enclosing *en)
+{
+    long max_width, max_height, sum_width, sum_height;
+    long area = -1;
+    long min_w = -1, min_h = -1;
+    long status;
+    enum theState {DO_PLACING, DEC_WIDTH, INC_HEIGHT, STOP} state;
+    long tot_area = total_area(list, length);
+
+    sum_wh(list, length, &sum_width, &sum_height);
+    max_wh(list, length, &max_width, &max_height);
+    /* Set initial enc. height to max height */
+    en->height = max_height;
+    en->width = sum_width;
+
+    area = en->height*en->width;
+    state = DO_PLACING;
+
+    /* Find start enclosing w = sum, h = max
+     * do placing
+     * - if success save area
+     * - if fail try a new enclosing
+     *
+     * decrease width, else increase height until sucess
+     *
+     * if en width = max: stop
+     *
+     *   */
+
+    long loop = 1;
+    while(loop){
+        switch(state){
+            case DO_PLACING:
+                /* Try to place the rectangles in enclosing rectangle.
+                 * If success, save the area and try again with enc. width dec.
+                 * If fail, increase height and try again. */
+                status = do_placing(list, length, en->width, en->height);
+                if(status == 1){
+                    en->width = placing_width(list, length);
+
+                    area = en->height*en->width;
+                    min_w = en->width;
+                    min_h = en->height;
+
+                    state = DEC_WIDTH;
+                }
+                else{
+                    state = INC_HEIGHT;
+                }
+                break;
+            case DEC_WIDTH:
+                /* Decrease enclosing width and try do placing again. But if the
+                 * new width is smaller than the rectangles' maximum width
+                 * - stop the algorithm and present the best solution */
+
+                en->width--;
+                if(en->width < max_width){
+                    state = STOP;
+                }
+                else{
+                    state = DO_PLACING;
+                }
+                break;
+            case INC_HEIGHT:
+                /* Increase enclosing height and try do placing again. But if the
+                 * new height makes the enclosing area smaller than the total
+                 * area of all the rectangles - increase enclosing height and
+                 * start over. If enclsing area is grather than the best enclosing
+                 * area so-far - decrease the enclosing width and start over. */
+                en->height++;
+                if(en->height*en->width < tot_area){
+                    state = INC_HEIGHT;
+                }
+                else if(en->height*en->width >= area){
+                    state = DEC_WIDTH;
+                }
+                else{
+                    state = DO_PLACING;
+                }
+                break;
+            case STOP:
+                /* Algorithm stops. */
+                loop = 0;
+                break;
+        }
+    }
+    if(min_w == -1 || min_h == -1){
+        return FAIL;
+    }
+    /* Do a final placing with the opimal found widht and height
+      (To erase dirty x,y values on rectangles) */
+    status = do_placing(list, length, min_w, min_h);
+
+    return SUCCESS;
+}

@@ -1,6 +1,13 @@
-rectangle-packer
-================
-Rectangle packing program.
+Welcome to rectangle-packer
+===========================
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+
+   rpack
+
+A Python module for rectangle packing utilities.
 
 Given a set of rectangles with fixed orientations, we want to
 find an enclosing rectangle of minimum area that contains
@@ -11,7 +18,7 @@ This project is inspired by the blog post
 <http://www.codeproject.com/Articles/210979/Fast-optimizing-rectangle-packing-algorithm-for-bu>`_
 written by Matt Perdeck.
 
-.. image:: example.png
+.. image:: http://www.standard-memory.com/static/misc/example.png
     :alt: Example
 
 Installation
@@ -37,17 +44,16 @@ Basic Usage
 -----------
 
 .. code:: python
-    import rpack  # This is the module name
 
     # Create a bunch of rectangles (width, height)
-    recs = [(58, 206), (231, 176), (35, 113), (46, 109), (68, 65), (90, 63)]
+    >>> sizes = [(58, 206), (231, 176), (35, 113), (46, 109)]
 
-    # Run the algorithm
-    positions = rpack.pack(recs)
+    # Pack
+    >>> positions = rpack.pack(sizes)
 
     # The result will be a list of (x, y) positions:
     >>> positions
-    [(0, 0), (58, 0), (289, 0), (289, 113), (58, 176), (126, 176)]
+    [(0, 0), (58, 0), (289, 0), (289, 113)]
 
 The output positions are the top left corner coordinates of each
 rectangle in the input (if we assume origin is in the top left corner).
@@ -55,17 +61,20 @@ rectangle in the input (if we assume origin is in the top left corner).
 These positions will yield a packing with no overlaps and enclosing
 area as small as possible.
 
-*For best result, sort the rectangles by height, highest first,
-before running* `rpack.pack`. The algorithm is probably far from
-the best available. But in most cases it gives quite good results.
+The algorithm is probably far from the best available. But in most cases
+it gives quite good results.
 
 Note that you can only provide **positive integers** as rectangle width
 and height.
 
+Module Reference
+----------------
+Read about available functions here: :doc:`rpack`.
+
 Examples
 --------
 
-.. image:: example2.png
+.. image:: http://www.standard-memory.com/static/misc/example2.png
     :alt: Example2
 
 The following image is contributed by `Paul Brodersen <http://paulbrodersen.pythonanywhere.com/>`_,
@@ -74,4 +83,4 @@ and illustrates how this package can be used on a real problem
 
 .. image:: https://i.stack.imgur.com/kLat8.png
     :alt: PaulBrodersenExample
-    :width: 640px
+    :width: 540px

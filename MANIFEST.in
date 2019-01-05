@@ -1,2 +1,2 @@
-include include/*.h
-include *.md
+include requirements*.txt
+recursive-include doc *

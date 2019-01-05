@@ -4,7 +4,11 @@ dist/
 *.egg-info/
 *.pdf
 *.bat
+*.so
 test/*.png
 test/*.txt
 py3*/
-venv/
+venv*/
+**/__pycache__
+/sandbox.py
+_build/
