@@ -1,6 +1,8 @@
 Welcome to rectangle-packer
 ===========================
 
+|Build-Status|
+
 A Python module for rectangle packing utilities.
 
 * The latest documentation is available on `Read the Docs`_.
@@ -20,3 +22,6 @@ written by Matt Perdeck.
 
 .. _Read the Docs: https://rectangle-packer.readthedocs.io/en/latest/
 .. _GitHub: https://github.com/Penlect/rectangle-packer
+
+.. |Build-Status| image:: https://travis-ci.com/Penlect/rectangle-packer.svg?branch=travis
+   :target: https://travis-ci.com/Penlect/rectangle-packer
