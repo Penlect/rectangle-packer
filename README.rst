@@ -3,7 +3,7 @@ Welcome to rectangle-packer
 
 |PyPI-Versions| |PyPI-Wheel| |PyPI-Downloads|
 
-|Build-Status| |Read-the-Docs|
+|Build-Status| |Read-the-Docs| |GitHub-License|
 
 A Python module for rectangle packing utilities.
 
@@ -38,3 +38,6 @@ written by Matt Perdeck.
 
 .. |Read-the-Docs| image:: https://img.shields.io/readthedocs/rectangle-packer.svg
    :target: https://rectangle-packer.readthedocs.io/en/latest
+
+.. |GitHub-License| image:: https://img.shields.io/github/license/Penlect/rectangle-packer.svg
+   :target: https://raw.githubusercontent.com/Penlect/rectangle-packer/travis/LICENSE.md
