@@ -1,7 +1,9 @@
 Welcome to rectangle-packer
 ===========================
 
-|Build-Status|
+|PyPI-Versions| |PyPI-Wheel| |PyPI-Downloads|
+
+|Build-Status| |Read-the-Docs|
 
 A Python module for rectangle packing utilities.
 
@@ -23,5 +25,16 @@ written by Matt Perdeck.
 .. _Read the Docs: https://rectangle-packer.readthedocs.io/en/latest/
 .. _GitHub: https://github.com/Penlect/rectangle-packer
 
+
+.. |PyPI-Versions| image:: https://img.shields.io/pypi/pyversions/rectangle-packer.svg
+   :target: https://pypi.org/project/rectangle-packer
+.. |PyPI-Wheel| image:: https://img.shields.io/pypi/wheel/rectangle-packer.svg
+   :target: https://pypi.org/project/rectangle-packer
+.. |PyPI-Downloads| image:: https://img.shields.io/pypi/dm/rectangle-packer.svg
+   :target: https://pypi.org/project/rectangle-packer
+
 .. |Build-Status| image:: https://travis-ci.com/Penlect/rectangle-packer.svg?branch=travis
    :target: https://travis-ci.com/Penlect/rectangle-packer
+
+.. |Read-the-Docs| image:: https://img.shields.io/readthedocs/rectangle-packer.svg
+   :target: https://rectangle-packer.readthedocs.io/en/latest
