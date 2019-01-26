@@ -4,6 +4,7 @@ python:
   - "3.6"
   - "3.7"
 install:
+  - python -m pip install -r requirements_test.txt
   - python setup.py develop
 script:
   - pytest
