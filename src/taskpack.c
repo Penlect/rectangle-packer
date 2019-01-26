@@ -42,24 +42,6 @@ static void free_stack(StackState *stack){
 }
 
 
-static void check(StackState *stack, Task *tasks, size_t nr_tasks){
-    size_t i = 0;
-    for (i = 0; i < nr_tasks; i++){
-        stack->group_sums[tasks[i].group] -= tasks[i].duration;
-    }
-    int fail = 1;
-    for (i = 0; i < stack->nr_groups; i++){
-        if (fabs(stack->group_sums[i]) > 0.00001){
-            fail = 0;
-        }
-    }
-    assert(fail);
-    for (i = 0; i < nr_tasks; i++){
-        stack->group_sums[tasks[i].group] += tasks[i].duration;
-    }
-}
-
-
 static size_t stack_min_group(StackState *stack){
     size_t i = 0, min_group = 0;
     double min_sum = -1;
@@ -83,15 +65,6 @@ static size_t stack_max_group(StackState *stack){
         }
     }
     return max_group;
-}
-
-
-static double stack_sum(StackState *stack){
-    double sum = 0;
-    for (size_t i = 0; i < stack->nr_groups; i++){
-        sum += stack->group_sums[i];
-    }
-    return sum;
 }
 
 
@@ -137,18 +110,6 @@ static int stack_swap(StackState *stack, Task *task_a, Task *task_b){
     stack->max_group = stack_max_group(stack);
 
     return 1;
-}
-
-
-static size_t get_group_size(Task* tasks, size_t nr_tasks, size_t group){
-    size_t i = 0;
-    size_t count = 0;
-    for (i = 0; i < nr_tasks; i++){
-        if (tasks[i].group == group){
-            count++;
-        }
-    }
-    return count;
 }
 
 
