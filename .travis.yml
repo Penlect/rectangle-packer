@@ -7,3 +7,4 @@ install:
   - python setup.py develop
 script:
   - pytest
+  - pylint --rcfile test/pylint.cfg rpack

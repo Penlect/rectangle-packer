@@ -33,7 +33,7 @@ written by Matt Perdeck.
 .. |PyPI-Downloads| image:: https://img.shields.io/pypi/dm/rectangle-packer.svg
    :target: https://pypi.org/project/rectangle-packer
 
-.. |Build-Status| image:: https://travis-ci.com/Penlect/rectangle-packer.svg?branch=travis
+.. |Build-Status| image:: https://travis-ci.com/Penlect/rectangle-packer.svg?branch=master
    :target: https://travis-ci.com/Penlect/rectangle-packer
 
 .. |Read-the-Docs| image:: https://img.shields.io/readthedocs/rectangle-packer.svg
