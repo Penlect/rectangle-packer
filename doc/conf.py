@@ -14,7 +14,12 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+
+if 'RTD' not in os.environ:
+    # On Read the Docs the package will get "setup.py installed" and
+    # then we don't want to mess with the Python path.
+    # Make sure the RTD environment variable is set on Read the Docs.
+    sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
