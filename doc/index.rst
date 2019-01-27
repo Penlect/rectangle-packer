@@ -62,8 +62,9 @@ rectangle in the input (if we assume origin is in the top left corner).
 These positions will yield a packing with no overlaps and enclosing
 area as small as possible.
 
-The algorithm is probably far from the best available. But in most cases
-it gives quite good results.
+*For best result, sort the rectangles by height, highest first, before running*
+:py:func:`rpack.pack`. The algorithm is probably far from the best available.
+But in most cases it gives quite good results.
 
 Note that you can only provide **positive integers** as rectangle width
 and height.

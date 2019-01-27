@@ -35,3 +35,10 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython'
     ]
 )
+
+# Windows wheels
+# set HTTPS_PROXY=http://username:password@proxy:8080
+# C:\Python37-32\python.exe -m pip install wheel
+# C:\Python37-32\python.exe setup.py bdist_wheel
+# twine upload dist/*
+# Use either "x64 Native Tools Command Prompt for VS 2017" or "x86".
