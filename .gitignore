@@ -12,3 +12,4 @@ venv*/
 **/__pycache__
 /sandbox.py
 _build/
+*.code-workspace

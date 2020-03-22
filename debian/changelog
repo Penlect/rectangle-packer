@@ -1,0 +1,5 @@
+rectangle-packer (1.1-1) UNRELEASED; urgency=medium
+
+  * First debian package
+
+ -- Daniel Andersson <daniel.4ndersson@gmail.com>  Sun, 22 Mar 2020 10:38:43 +0100

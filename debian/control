@@ -1,0 +1,20 @@
+Source: rectangle-packer
+Section: devel
+Priority: optional
+Maintainer: Daniel Andersson <daniel.4ndersson@gmail.com>
+Build-Depends: debhelper (>= 12),
+  python3-all-dev,
+  python3-setuptools,
+  python3-pytest,
+  dh-python
+Standards-Version: 4.2.1
+X-Python3-Version: >= 3.7
+
+Package: python3-rectangle-packer
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}
+Description: A Python module for rectangle packing utilities.
+ .
+ Primary use: Given a set of rectangles with fixed orientations,
+ find an enclosing rectangle of minimum area that contains
+ them all with no overlap.
