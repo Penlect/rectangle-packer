@@ -46,6 +46,9 @@ Basic Usage
 
 .. code:: python
 
+    # Import the module
+    >>> import rpack
+
     # Create a bunch of rectangles (width, height)
     >>> sizes = [(58, 206), (231, 176), (35, 113), (46, 109)]
 
@@ -68,6 +71,8 @@ But in most cases it gives quite good results.
 
 Note that you can only provide **positive integers** as rectangle width
 and height.
+
+The actual module name is **rpack** which is an abbreviation of the package name on PyPI (rectangle-packer). 
 
 Module Reference
 ----------------
