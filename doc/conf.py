@@ -21,17 +21,31 @@ if 'RTD' not in os.environ:
     # Make sure the RTD environment variable is set on Read the Docs.
     sys.path.insert(0, os.path.abspath('..'))
 
+import rpack
 
 # -- Project information -----------------------------------------------------
 
 project = 'rectangle-packer'
-copyright = '2019, Daniel Andersson'
-author = 'Daniel Andersson'
+copyright = '2017, ' + rpack.__author__
+author = rpack.__author__
+
+# The full version, including alpha/beta/rc tags
+release = rpack.__version__
 
 # The short X.Y version
-version = ''
-# The full version, including alpha/beta/rc tags
-release = '1.1.0'
+version = release
+
+
+def module_docstr(app, what, name, obj, options, lines):
+    if what != 'module' or name != 'rpack':
+        return
+    del lines[:2]
+    del lines[3:7]  # Remove badges, svg doesn't work with latex
+
+
+def setup(app):
+    from sphinx.ext.autodoc import cut_lines
+    app.connect('autodoc-process-docstring', module_docstr)
 
 
 # -- General configuration ---------------------------------------------------
@@ -48,6 +62,9 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.imgmath',
     'sphinx.ext.viewcode',
+    'sphinx.ext.imgmath',
+    'sphinx_rtd_theme'
+    # 'sphinx.ext.extlinks',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -74,53 +91,20 @@ language = None
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = None
-
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
-html_theme_options = {
-    'logo': 'pack.gif',
-    'description': 'Pack rectangles to minimize enclosing area.',
-    'github_user': 'Penlect',
-    'github_repo': 'rectangle-packer',
-    'github_banner': True,
-    'font_family': "'Roboto', Georgia, sans",
-    'head_font_family': "'Roboto', Georgia, serif",
-    'code_font_family': "'Roboto Mono', 'Consolas', monospace",
-    'code_font_size': '14px'
-}
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-# Custom sidebar templates, must be a dictionary that maps document names
-# to template names.
-#
-# The default sidebars (for documents that don't match any pattern) are
-# defined by theme itself.  Builtin themes are using these templates by
-# default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
-# 'searchbox.html']``.
-#
-# html_sidebars = {}
-
-
-# -- Options for HTMLHelp output ---------------------------------------------
-
-# Output file base name for HTML help builder.
-htmlhelp_basename = 'rpackdoc'
+html_logo = '_static/pack.gif'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -128,7 +112,7 @@ htmlhelp_basename = 'rpackdoc'
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
-    # 'papersize': 'letterpaper',
+    'papersize': 'a4paper',
 
     # The font size ('10pt', '11pt' or '12pt').
     #
@@ -141,55 +125,17 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
+
+    'extraclassoptions': 'openany,oneside'
 }
+
+# latex_logo = '_static/packing_best_100.pdf'
+latex_show_urls = 'footnote'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'rpack.tex', 'rpack Documentation',
-     'Daniel Andersson', 'manual'),
+    (master_doc, 'rpack.tex', 'rectangle-packer documentation',
+     rpack.__author__, 'manual'),
 ]
-
-
-# -- Options for manual page output ------------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'rpack', 'rpack Documentation',
-     [author], 1)
-]
-
-
-# -- Options for Texinfo output ----------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-    (master_doc, 'rpack', 'rpack Documentation',
-     author, 'rpack', 'One line description of project.',
-     'Miscellaneous'),
-]
-
-
-# -- Options for Epub output -------------------------------------------------
-
-# Bibliographic Dublin Core info.
-epub_title = project
-
-# The unique identifier of the text. This can be a ISBN number
-# or the project homepage.
-#
-# epub_identifier = ''
-
-# A unique identification for the text.
-#
-# epub_uid = ''
-
-# A list of files that should not be packed into the epub file.
-epub_exclude_files = ['search.html']
-
-
-# -- Extension configuration -------------------------------------------------

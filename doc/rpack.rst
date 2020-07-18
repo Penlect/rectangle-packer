@@ -1,18 +1,35 @@
 
-Module Reference
 ================
+Module Reference
+================	  
 
 
-Main functions
---------------
+Functions
+=========
 
 .. autofunction:: rpack.pack
 
-.. autofunction:: rpack.group
 
+Exceptions
+==========
+
+.. autoclass:: rpack.PackingImpossibleError
+		  
 
 Helper functions
-----------------
+================
 
-.. autofunction:: rpack.enclosing_size
+.. autofunction:: rpack.bbox_size
+
+.. autofunction:: rpack.packing_density
+
+.. autofunction:: rpack.overlapping
+
+
+.. only:: html
+	  
+  Index
+  =====	
+
+  View :ref:`genindex`.
 

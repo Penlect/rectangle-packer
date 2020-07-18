@@ -1,3 +1,6 @@
+/* THIS FILE AND ITS CONTENT IS DEPRECATED. USE rpackcore.c INSTEAD.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

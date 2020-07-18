@@ -1,3 +1,5 @@
+/* THIS FILE AND ITS CONTENT IS DEPRECATED. USE rpackcore.h INSTEAD.
+ */
 #ifndef AREAPACK_H
 #define AREAPACK_H
 

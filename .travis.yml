@@ -5,9 +5,10 @@ language: python
 
 env:
   global:
-    - CIBW_TEST_REQUIRES=pytest
-    - CIBW_TEST_COMMAND="pytest {project}/test"
+    - CIBW_BUILD_VERBOSITY=3
+    - CIBW_TEST_COMMAND="python -m unittest discover -v {project}/test"
     - CIBW_BUILD="cp3?-*"
+    - CIBW_SKIP="cp35-*"
     - TWINE_USERNAME=__token__
 
 jobs:
@@ -37,7 +38,7 @@ jobs:
         - ln -s /c/Python38/python.exe /c/Python38/python3.exe
 
 install:
-  - python3 -m pip install cibuildwheel==1.6.2
+  - python3 -m pip install cibuildwheel==1.7.2
 
 script:
   # build the wheels, put them into './wheelhouse'
