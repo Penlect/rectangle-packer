@@ -4,6 +4,7 @@ env:
   global:
     - CIBW_TEST_REQUIRES=pytest
     - CIBW_TEST_COMMAND="pytest {project}/test"
+    - CIBW_BUILD="cp3?-*"
 
 jobs:
   include:
