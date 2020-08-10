@@ -39,8 +39,8 @@ def test_input_error():
 
 
 def test_performance():
-    groups = rpack.group(list(range(1_000)), 5)
-    assert max(sum(g) for g in groups) == 99_900
+    groups = rpack.group(list(range(1000)), 5)
+    assert max(sum(g) for g in groups) == 99900
 
 
 def test_swap_complete():
