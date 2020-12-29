@@ -1,3 +1,4 @@
+/* THIS FILE AND ITS CONTENT IS DEPRECATED. */
 
 #include <stdlib.h>
 #include <stdio.h>

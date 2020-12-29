@@ -1,3 +1,8 @@
 include requirements*.txt
 recursive-include doc *
 include include/*.h
+include rpack/*.pyx
+include rpack/*.pxd
+include LICENSE.md
+include misc/*.py
+include Makefile

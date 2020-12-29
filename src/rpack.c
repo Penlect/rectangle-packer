@@ -1,3 +1,5 @@
+/* THIS FILE AND ITS CONTENT IS DEPRECATED. USE rpack._core.pyx INSTEAD.
+ */
 
 /*Since Python may define some pre-processor definitions which affect the standard headers on some systems, you must include Python.h before any standard headers are included.
 
@@ -410,6 +412,11 @@ static struct PyModuleDef _rpack_module = {
 
 PyMODINIT_FUNC
 PyInit__rpack(void){
+    if (PyErr_WarnEx(PyExc_DeprecationWarning,
+		     "rpack._rpack is deprecated; "
+		     "use rpack._core instead.", 1) < 0) {
+	return NULL;
+    }
     PyObject* m = PyModule_Create(&_rpack_module);
     return m;
 }

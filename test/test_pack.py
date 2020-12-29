@@ -1,118 +1,212 @@
+"""Test pack._core module"""
 
 # Built-in
-from collections import namedtuple
 import random
-
-# PyPI
-import pytest
+import unittest
 
 # Local
 import rpack
-
-R = namedtuple('R', 'width height x y')
-
-
-def enclosing_size(sizes, positions):
-    """Return enclosing size of rectangles having sizes and positions"""
-    rectangles = [R(*size, *pos) for size, pos in zip(sizes, positions)]
-    width = max(r.width + r.x for r in rectangles)
-    height = max(r.height + r.y for r in rectangles)
-    return width, height
+import rpack._rpack
+import rpack._core
 
 
-def test_enclosing_size():
-    """Test enclosing size helper function"""
-    sizes = [(3, 5), (1, 1), (1, 1)]
-    positions = [(0, 0), (3, 0), (0, 5)]
-    width, height = enclosing_size(sizes, positions)
-    assert width == 4
-    assert height == 6
+# TEST CORE UTILS
+# ===============
 
-def test_origin():
-    """Single rectangle should be positioned in origin"""
-    rectangles = [(3, 5)]
-    positions = [(0, 0)]
-    assert rpack.pack(rectangles) == positions
+class TestPackingDensity(unittest.TestCase):
 
-def test_perfect_pack():
-    """Pack rectangles to perfect rectangle
+    def test_max_density(self):
+        p = rpack._core.packing_density([(10, 10)], [(0, 0)])
+        self.assertEqual(p, 1)
 
-    Like this::
+class TestOverlapping(unittest.TestCase):
 
-        aaa  bb  cc  -->  aaabb
-        aaa  bb           aaabb
-        aaa               aaacc
-    """
-    rectangles = [(3, 3), (2, 2), (2, 1)]
-    positions = [(0, 0), (3, 0), (3, 2)]
-    assert rpack.pack(rectangles) == positions
+    def test_overlapping_true(self):
+        sizes = [(10, 10), (10, 10)]
+        pos = [(0, 0), (9, 9)]
+        index = rpack._core.overlapping(sizes, pos)
+        self.assertEqual(index, (0, 1))
 
-def test_basic_pack():
-    """Single rectangle should be positioned in origin"""
-    sizes = [(2, 2), (2, 2), (2, 2), (3, 3)]
-    positions = rpack.pack(sizes)
-    width, height = enclosing_size(sizes, positions)
-    assert width*height == 25
+    def test_overlapping_false(self):
+        sizes = [(10, 10), (10, 10)]
+        pos = [(0, 0), (10, 10)]
+        index = rpack._core.overlapping(sizes, pos)
+        self.assertFalse(index)
 
-def test_medium_pack():
-    sizes = [(i, i) for i in range(20, 1, -1)]
-    positions = rpack.pack(sizes)
-    width, height = enclosing_size(sizes, positions)
-    assert width*height <= 3045
+class TestBboxSize(unittest.TestCase):
 
-def test_no_overlap():
-    """Make sure no rectangles overlap"""
-    random.seed(123)
-    rectangles = [(random.randint(50, 100), random.randint(50, 100))
-                  for _ in range(40)]
-    positions = rpack.pack(rectangles)
-    for i, ((x1, y1), (w1, h1)) in enumerate(zip(positions, rectangles)):
-        for j, ((x2, y2), (w2, h2)) in enumerate(zip(positions, rectangles)):
-            if i != j:
-                disjoint_in_x = (x1 + w1 <= x2 or x2 + w2 <= x1)
-                disjoint_in_y = (y1 + h1 <= y2 or y2 + h2 <= y1)
-                assert disjoint_in_x or disjoint_in_y
+    def test_enclosing_size(self):
+        """Test enclosing size helper function"""
+        sizes = [(3, 5), (1, 1), (1, 1)]
+        pos = [(0, 0), (3, 0), (0, 5)]
+        width, height = rpack.enclosing_size(sizes, pos)
+        self.assertEqual(width, 4)
+        self.assertEqual(height, 6)
 
 # TEST INPUT
 # ==========
 
-def test_empty():
-    """Empty input should give empty output"""
-    rectangles = []
-    positions = []
-    assert rpack.pack(rectangles) == positions
+class TestPackInput(unittest.TestCase):
+    """Test how rpack.pack handles bad input"""
 
-def test_zero():
-    """Zero number should raise ValueError"""
-    with pytest.raises(ValueError):
-        rpack.pack([(0, 0)])
+    def test_empty(self):
+        """Empty input should give empty output"""
+        self.assertListEqual(rpack.pack([]), [])
 
-def test_negative():
-    """Negative number should raise ValueError"""
-    with pytest.raises(ValueError):
-        rpack.pack([(3, -5)])
-    with pytest.raises(ValueError):
-        rpack.pack([(-3, 5)])
-    with pytest.raises(ValueError):
-        rpack.pack([(-3, -5)])
+    def test_zero(self):
+        """Zero number should raise ValueError"""
+        with self.assertRaises(ValueError):
+            rpack.pack([(0, 0)])
 
-def test_not_iterable():
-    """Non-number should raise ValueError"""
-    with pytest.raises(TypeError):
-        rpack.pack(None)
+    def test_negative(self):
+        """Negative number should raise ValueError"""
+        with self.assertRaises(ValueError):
+            rpack.pack([(3, -5)])
+        with self.assertRaises(ValueError):
+            rpack.pack([(-3, 5)])
+        with self.assertRaises(ValueError):
+            rpack.pack([(-3, -5)])
 
-def test_not_height_width():
-    """Non-number should raise ValueError"""
-    with pytest.raises(TypeError):
-        rpack.pack([None])
+    def test_not_iterable(self):
+        """None should raise TypeError"""
+        with self.assertRaises(TypeError):
+            rpack.pack(None)
 
-def test_not_integers():
-    """Non-number should raise ValueError"""
-    with pytest.raises(TypeError):
-        rpack.pack([('garnet', 9)])
-    with pytest.raises(TypeError):
-        rpack.pack([(9, 'alexandros')])
+    def test_not_height_width(self):
+        """[None] should raise TypeError"""
+        with self.assertRaises(TypeError):
+            rpack.pack([None])
 
-def test_floats():
-    with pytest.raises(TypeError):
-        rpack.pack([[1.99, 1.99]])
+    def test_not_integers(self):
+        """Non-number should raise TypeError"""
+        with self.assertRaises(TypeError):
+            rpack.pack([('garnet', 9)])
+        with self.assertRaises(TypeError):
+            rpack.pack([(9, 'alexandros')])
+
+    def test_floats(self):
+        with self.assertRaises(TypeError):
+            rpack.pack([[1.99, 1.99]])
+
+
+class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
+    """Test how rpack.pack handles bad input"""
+
+    def test_none(self):
+        self.assertListEqual(rpack.pack([(10, 10)], None), [(0, 0)])
+
+    def test_max_width(self):
+        pos = rpack.pack([(2, 2)]*4, max_width=3)
+        self.assertSetEqual(set(pos), {(0, 2*i) for i in range(4)})
+
+    def test_max_width_bad(self):
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'max_width'):
+            rpack.pack([(2, 2)], max_width=1)
+
+    def test_max_width_ok(self):
+        rpack.pack([(2, 2)], max_width=2)
+
+    def test_max_height(self):
+        pos = rpack.pack([(2, 2)]*4, max_height=3)
+        self.assertSetEqual(set(pos), {(2*i, 0) for i in range(4)})
+
+    def test_max_height_bad(self):
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'max_height'):
+            rpack.pack([(2, 2)], max_height=1)
+
+    def test_max_height_ok(self):
+        rpack.pack([(2, 2)], max_height=2)
+
+    def test_partial_result(self):
+        with self.assertRaises(rpack.PackingImpossibleError) as error:
+            rpack.pack([(2, 2)]*4, max_width=3, max_height=3)
+        self.assertEqual(error.exception.args[0], 'Partial result')
+        self.assertEqual(error.exception.args[1], [(0, 0)])
+
+    def test_max_width_height_square(self):
+        for i in range(1, 101):
+            sizes = [(j, j) for j in range(1, i + 1)]
+            pos = rpack.pack(sizes, max_width=i)
+            w, _ = rpack.bbox_size(sizes, pos)
+            self.assertEqual(w, i)
+            pos = rpack.pack(sizes, max_height=i)
+            _, h = rpack.bbox_size(sizes, pos)
+            self.assertEqual(h, i)
+
+    def test_max_width_height_diag(self):
+        for i in range(1, 101):
+            sizes = [(j, i + 1 - j) for j in range(1, i + 1)]
+            pos = rpack.pack(sizes, max_width=i)
+            w, _ = rpack.bbox_size(sizes, pos)
+            self.assertEqual(w, i)
+            pos = rpack.pack(sizes, max_height=i)
+            _, h = rpack.bbox_size(sizes, pos)
+            self.assertEqual(h, i)
+
+    def test_max_width_height_both(self):
+        sizes = [(j, j) for j in range(1, 101)]
+        pos = rpack.pack(sizes, max_width=611, max_height=611)
+        w, h = rpack.bbox_size(sizes, pos)
+        self.assertLessEqual(w, 611)
+        self.assertLessEqual(h, 611)
+
+
+# TEST OUTPUT
+# ===========
+
+class TestPackOutput(unittest.TestCase):
+    """Test/compare output of rpack.pack"""
+
+    def test_origin(self):
+        """Single rectangle should be positioned in origin"""
+        sizes = [(3, 5)]
+        pos = [(0, 0)]
+        self.assertListEqual(rpack.pack(sizes), pos)
+
+    def test_perfect_pack(self):
+        """Pack rectangles to perfect rectangle
+
+        Like this::
+
+            aaa  bb  cc  -->  aaabb
+            aaa  bb           aaabb
+            aaa               aaacc
+        """
+        sizes = [(3, 3), (2, 2), (2, 1)]
+        pos = [(0, 0), (3, 0), (3, 2)]
+        self.assertListEqual(rpack.pack(sizes), pos)
+
+    def test_basic_pack(self):
+        """Basic pack: four 2x2 and one 3x3"""
+        sizes = [(2, 2), (2, 2), (2, 2), (3, 3)]
+        pos = rpack.pack(sizes)
+        width, height = rpack.enclosing_size(sizes, pos)
+        self.assertEqual(width*height, 25)
+
+    def test_medium_pack(self):
+        sizes = [(i, i) for i in range(20, 1, -1)]
+        pos = rpack.pack(sizes)
+        width, height = rpack.enclosing_size(sizes, pos)
+        self.assertLessEqual(width*height, 3045)
+
+    def test_no_overlap(self):
+        """Make sure no rectangles overlap"""
+        for i in range(10, 101, 10):
+            with self.subTest(seed=i):
+                random.seed(i)
+                sizes = [(random.randint(1, i), random.randint(1, i))
+                         for _ in range(110 - i)]
+                pos = rpack.pack(sizes)
+                self.assertFalse(rpack._core.overlapping(sizes, pos))
+
+    def test_backwards_compatible(self):
+        for i in range(10):
+            random.seed(i)
+            sizes = [(random.randint(1, 50), random.randint(1, 50)) for _ in range(20)]
+            pos1 = rpack._rpack.pack(sizes)
+            self.assertFalse(rpack._core.overlapping(sizes, pos1))
+            pos2 = rpack.pack(sizes)
+            self.assertFalse(rpack._core.overlapping(sizes, pos2))
+            self.assertLessEqual(
+                rpack._core.packing_density(sizes, pos1),
+                rpack._core.packing_density(sizes, pos2))
