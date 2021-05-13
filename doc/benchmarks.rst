@@ -25,13 +25,13 @@ look at the `boxplot`_ article at Wikipedia for an introduction.
 
 .. only:: latex
 
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_density_by_n.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_density_by_n.pdf
      :alt: packing density
      :align: center
 
 .. only:: html
 
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_density_by_n.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_density_by_n.svg
      :alt: packing density
      :align: center
 
@@ -40,13 +40,13 @@ lengths.
 	  
 .. only:: latex
 
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_density_by_m.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_density_by_m.pdf
      :alt: packing density
      :align: center
 
 .. only:: html
 	  
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_density_by_m.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_density_by_m.svg
      :alt: packing density
      :align: center
 
@@ -59,13 +59,13 @@ tall) when the number of rectangles increases.
 	  
 .. only:: latex
 	  
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/enclosing.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/enclosing.pdf
      :alt: enclosing
      :align: center
 
 .. only:: html
 	  
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/enclosing.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/enclosing.svg
      :alt: enclosing
      :align: center
 
@@ -74,13 +74,13 @@ Example of 100 rectangles, high packing density:
 	  
 .. only:: latex
 	  
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_best_100.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_best_100.pdf
      :alt: compute time
      :align: center
 
 .. only:: html
 	  
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_best_100.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_best_100.svg
      :alt: compute time
      :align: center
 
@@ -88,13 +88,13 @@ Example of 100 rectangles, lower packing density:
 	  
 .. only:: latex
 	  
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_worst_100.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_worst_100.pdf
      :alt: compute time
      :align: center
 
 .. only:: html
 	  
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_worst_100.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_worst_100.svg
      :alt: compute time
      :align: center
 
@@ -112,13 +112,13 @@ Results`_ for the optimal solutions for all squares up to n=22.
 	  
 .. only:: latex
 	  
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/squares_summary.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/squares_summary.pdf
      :alt: compute time
      :align: center
 
 .. only:: html
 	  
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/squares_summary.svg
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/squares_summary.svg
      :alt: compute time
      :align: center
 
@@ -135,13 +135,13 @@ N = 1, ..., 100. A summary is shown in the plot below.
 	  
 .. only:: latex
 	  
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/circum_summary.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/circum_summary.pdf
      :alt: compute time
      :align: center
 
 .. only:: html
 	  
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/circum_summary.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/circum_summary.svg
      :alt: compute time
      :align: center
 
@@ -164,13 +164,13 @@ deviation.
 	  
 .. only:: latex
 	  
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/computation_time_by_m.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/computation_time_by_m.pdf
      :alt: compute time
      :align: center
 
 .. only:: html
 	  
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/computation_time_by_m.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/computation_time_by_m.svg
      :alt: compute time
      :align: center
 
@@ -184,13 +184,13 @@ O(n^3).
 	  
 .. only:: latex
 	  
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/computation_time_by_n.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/computation_time_by_n.pdf
      :alt: compute time
      :align: center
 
 .. only:: html
 	  
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/computation_time_by_n.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/computation_time_by_n.svg
      :alt: compute time
      :align: center
 	   
@@ -198,5 +198,5 @@ O(n^3).
 .. _`Optimal Rectangle Packing: Initial Results`: https://www.aaai.org/Papers/ICAPS/2003/ICAPS03-029.pdf
 .. _`Optimal Rectangle Packing: An Absolute Placement Approach`: https://arxiv.org/pdf/1402.0557.pdf
 .. _boxplot: https://en.wikipedia.org/wiki/Box_plot
-.. _squares.pdf: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/squares.pdf
-.. _circum.pdf: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/circum.pdf
+.. _squares.pdf: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/squares.pdf
+.. _circum.pdf: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/circum.pdf

@@ -452,7 +452,7 @@ grid_search_bbox(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr)
     }
     start_width = grid->width;
 
-    start_area = area = bbr->max_area + 1;
+    start_area = area = bbr->max_area - 1;
     best_w = grid->width;
     best_h = grid->height;
 

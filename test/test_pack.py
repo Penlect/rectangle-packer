@@ -123,6 +123,24 @@ class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
         self.assertEqual(error.exception.args[0], 'Partial result')
         self.assertEqual(error.exception.args[1], [(0, 0)])
 
+    def test_partial_result_simple(self):
+        sizes = [(14, 17), (10, 16)]
+        max_width, max_height = (22, 25)
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'Partial'):
+            rpack.pack(sizes, max_width=max_width, max_height=max_height)
+
+    def test_partial_result_width(self):
+        sizes = [(10, 1)]*10
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'Partial') as err:
+            rpack.pack(sizes, max_width=50, max_height=1)
+        self.assertCountEqual(err.exception.args[1], [(0, 0), (10, 0), (20, 0), (30, 0), (40, 0)])
+
+    def test_partial_result_height(self):
+        sizes = [(1, 10)]*10
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'Partial') as err:
+            rpack.pack(sizes, max_width=1, max_height=50)
+        self.assertCountEqual(err.exception.args[1], [(0, 0), (0, 10), (0, 20), (0, 30), (0, 40)])
+
     def test_max_width_height_square(self):
         for i in range(1, 101):
             sizes = [(j, j) for j in range(1, i + 1)]
@@ -149,6 +167,60 @@ class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
         w, h = rpack.bbox_size(sizes, pos)
         self.assertLessEqual(w, 611)
         self.assertLessEqual(h, 611)
+
+    def test_max_width_height_both2(self):
+        sizes = [(2736, 3648), (2736, 3648), (3648, 2736), (2736, 3648), (2736, 3648)]
+        max_height = max_width = 14130
+        pos = rpack.pack(sizes, max_width=max_width, max_height=max_height)
+        self.assertLessEqual(max(*rpack.bbox_size(sizes, pos)), max_width)
+        index = rpack._core.overlapping(sizes, pos)
+        self.assertFalse(index)
+
+    def test_max_width_height_both3(self):
+        sizes = [(3, 4), (3, 4), (4, 3), (3, 4), (3, 4)]
+        max_height = max_width = 9
+        pos = rpack.pack(sizes, max_width=max_width, max_height=max_height)
+        self.assertLessEqual(max(*rpack.bbox_size(sizes, pos)), max_width)
+        index = rpack._core.overlapping(sizes, pos)
+        self.assertFalse(index)
+
+    def test_max_width_height_both4(self):
+        sizes = [(3, 4), (3, 4), (4, 3), (3, 4), (3, 4)]
+        max_width, max_height = (16, 4)
+        pos = rpack.pack(sizes, max_width=max_width, max_height=max_height)
+        w, h = rpack.bbox_size(sizes, pos)
+        self.assertLessEqual(w, max_width)
+        self.assertLessEqual(h, max_height)
+        index = rpack._core.overlapping(sizes, pos)
+        self.assertFalse(index)
+
+    def test_max_width_height_minimal_no_overlap(self):
+        sizes = [(11, 17), (11, 6)]
+        max_width, max_height = (21, 22)
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'Partial'):
+            rpack.pack(sizes, max_width=max_width, max_height=max_height)
+
+    @unittest.skip("long running")
+    def test_max_width_height_long_running(self):
+        random.seed(123)
+        try:
+            while True:
+                n = random.randint(1, 20)
+                m = 20
+                sizes = [(random.randint(1, m), random.randint(1, m)) for _ in range(n)]
+                max_width = random.randint(1, m*n + 10)
+                max_height = random.randint(1, m*n + 10)
+                try:
+                    pos = rpack.pack(sizes, max_width=max_width, max_height=max_height)
+                except rpack.PackingImpossibleError:
+                    continue
+                else:
+                    w, h = rpack.bbox_size(sizes, pos)
+                    assert w <= max_width
+                    assert h <= max_height
+                    assert not rpack.overlapping(sizes, pos)
+        except KeyboardInterrupt:
+            print("Stopped.")
 
 
 # TEST OUTPUT

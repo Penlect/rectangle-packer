@@ -2,6 +2,13 @@
 Changelog
 =========
 
+Version 2.0.1 (2021-05-13)
+==========================
+
+**Bugfixes:**
+
+* ``rpack.pack()`` behaved incorrectly when the arguments ``max_width`` and/or ``max_height`` were used. For instance, it could return incorrect rectangle positions which made the rectangles overlap.
+
 Version 2.0.0 (2020-12-29)
 ==========================
 
