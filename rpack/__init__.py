@@ -78,13 +78,13 @@ Examples
 
 .. only:: latex
 
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_best_10.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_best_10.pdf
      :alt: pack10
      :align: center
 
 .. only:: html
 
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_best_10.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_best_10.svg
      :alt: pack10
      :align: center
 
@@ -92,13 +92,13 @@ Examples
 
 .. only:: latex
 
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_phi.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_phi.pdf
      :alt: packphi
      :align: center
 
 .. only:: html
 
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_phi.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_phi.svg
      :alt: packphi
      :align: center
 
@@ -108,13 +108,13 @@ a good way. Here is an example of low packing density:
 
 .. only:: latex
 
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_worst_10.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_worst_10.pdf
      :alt: pack10bad
      :align: center
 
 .. only:: html
 
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_worst_10.svg
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_worst_10.svg
      :alt: pack10bad
      :align: center
 
@@ -163,7 +163,7 @@ __contact__ = __email__
 __copyright__ = 'Copyright (c) 2017 Daniel Andersson'
 __license__ = 'MIT'
 __url__ = 'https://github.com/Penlect/rectangle-packer'
-__version__ = '2.0.0'
+__version__ = '2.0.1'
 
 # Built-in
 from typing import Iterable, Tuple, List

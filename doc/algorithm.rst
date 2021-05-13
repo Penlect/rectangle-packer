@@ -28,13 +28,13 @@ these cells are created.
 
 .. only:: latex
 
-  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/example_grid.pdf
+  .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/example_grid.pdf
      :alt: compute time
      :align: center
 
 .. only:: html
 
-  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/example_grid.gif
+  .. figure:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/example_grid.gif
      :alt: compute time
      :align: center
 

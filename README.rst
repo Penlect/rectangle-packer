@@ -74,13 +74,13 @@ Examples
 
 **Example A:**
 
-.. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_best_10.png
+.. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_best_10.png
    :alt: pack10
    :align: center
 
 **Example B:**
 
-.. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_phi.png
+.. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_phi.png
    :alt: packphi
    :align: center
 
@@ -88,7 +88,7 @@ Examples
 **Example C:** Sometimes the input rectangles simply cannot be packed in
 a good way. Here is an example of low packing density:
 
-.. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.0/img/packing_worst_10.png
+.. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_worst_10.png
    :alt: pack10bad
    :align: center
 
