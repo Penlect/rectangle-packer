@@ -26,7 +26,6 @@ jobs:
       arch: s390x
     # and a mac build
     - os: osx
-      osx_image: xcode10.2
       language: shell
     # and a windows build
     - os: windows
@@ -38,7 +37,7 @@ jobs:
         - ln -s /c/Python38/python.exe /c/Python38/python3.exe
 
 install:
-  - python3 -m pip install cibuildwheel==1.7.2
+  - python3 -m pip install cibuildwheel==1.11.0
 
 script:
   # build the wheels, put them into './wheelhouse'
@@ -48,6 +47,6 @@ after_success:
   # if the release was tagged, upload them to PyPI
   - |
     if [[ $TRAVIS_TAG ]]; then
-      python3 -m pip install twine
+      python3 -m pip install keyring twine
       python3 -m twine upload wheelhouse/*.whl
     fi
