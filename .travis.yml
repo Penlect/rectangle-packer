@@ -46,7 +46,5 @@ script:
 after_success:
   # if the release was tagged, upload them to PyPI
   - |
-    if [[ $TRAVIS_TAG ]]; then
-      python3 -m pip install keyring twine
-      python3 -m twine upload wheelhouse/*.whl
-    fi
+    python3 -m pip install keyring twine
+    python3 -m twine upload wheelhouse/*.whl
