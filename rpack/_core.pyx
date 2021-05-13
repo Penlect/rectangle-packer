@@ -13,6 +13,7 @@ from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 
 DEF NO_POSITION = -1
+DEF CASE_0 = 0
 DEF CASE_1 = 1
 DEF CASE_2 = 2
 DEF CASE_3 = 3
@@ -308,7 +309,7 @@ def pack(sizes, long max_width, long max_height):
     cdef:
         long area = LONG_MAX
         long w = 0, h = 0, best_w = 0, best_h = 0
-        int case = 0
+        int case = CASE_0
         BBoxRestrictions bbr
 
     # Abort early
@@ -387,7 +388,10 @@ def pack(sizes, long max_width, long max_height):
         case = CASE_4
 
     # Restore rset to best case
-    if case == CASE_1:
+    if case == CASE_0:
+        best_w = bbr.max_width
+        best_h = bbr.max_height
+    elif case == CASE_1:
         rset.rotate_all()
     elif case == CASE_2:
         rset.rotate_all()
@@ -400,7 +404,7 @@ def pack(sizes, long max_width, long max_height):
     grid.pack(rset, best_w, best_h)
 
     # Restore rectangles if rotated
-    if case == CASE_3 or case == CASE_4:
+    if case == CASE_0 or case == CASE_3 or case == CASE_4:
         rset.transpose()
 
     return rset.positions()
