@@ -64,7 +64,7 @@ area as small as possible (best effort).
     * The module name is **rpack** which is an abbreviation of the package
       name at PyPI (rectangle-packer).
 
-    * The computational time required by :py:func:`rpack.pack` increases by
+    * The computational time required by ``rpack.pack()`` increases by
       the number *and* size of input rectangles.  If this becomes a problem,
       you might need to implement your own `divide-and-conquer algorithm`_.
 
@@ -84,14 +84,12 @@ Examples
    :alt: packphi
    :align: center
 
-
 **Example C:** Sometimes the input rectangles simply cannot be packed in
 a good way. Here is an example of low packing density:
 
 .. image:: https://storage.googleapis.com/bucket.penlect.com/rpack/2.0.1/img/packing_worst_10.png
    :alt: pack10bad
    :align: center
-
 
 **Example D:** The image below is contributed by Paul Brodersen, and
 illustrates a solution to a problem discussed at stackoverflow_.
