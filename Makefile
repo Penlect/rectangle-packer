@@ -2,7 +2,7 @@
 VERSION = $(shell git describe --tags --always)
 TAG = $(shell git describe --tags --abbrev=0)
 SDIST = rectangle-packer-$(VERSION).tar.gz
-IMG_HOST = "https://storage.googleapis.com/bucket.penlect.com"
+IMG_HOST = "https://penlect.com"
 PYTHON = "python3"
 
 all:
