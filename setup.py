@@ -50,6 +50,7 @@ setup(
     author_email=init.__email__,
     description=init.__doc__.splitlines()[0].strip(),
     long_description=init.__doc__,
+    long_description_content_type='text/x-rst',
     license=init.__license__,
     keywords='pack rectangle packing rectangles enclosing 2D',
     url=init.__url__,
@@ -78,6 +79,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: Implementation :: CPython'
     ]
 )
