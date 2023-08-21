@@ -34,7 +34,7 @@ class PackingImpossibleError(Exception):
 # The following four functions are used as compare-functions for
 # sorting `Rectangle` structs by index, width, height and area.
 
-cdef int rectangle_index_cmp(const void *a, const void *b) nogil:
+cdef int rectangle_index_cmp(const void *a, const void *b) nogil noexcept:
     cdef int index_a, index_b
     index_a = (<Rectangle*>a)[0].index
     index_b = (<Rectangle*>b)[0].index
@@ -46,7 +46,7 @@ cdef int rectangle_index_cmp(const void *a, const void *b) nogil:
         return 1
 
 
-cdef int rectangle_width_cmp(const void *a, const void *b) nogil:
+cdef int rectangle_width_cmp(const void *a, const void *b) nogil noexcept:
     cdef int width_a, width_b
     width_a = (<Rectangle*>a)[0].width
     width_b = (<Rectangle*>b)[0].width
@@ -58,7 +58,7 @@ cdef int rectangle_width_cmp(const void *a, const void *b) nogil:
         return -1
 
 
-cdef int rectangle_height_cmp(const void *a, const void *b) nogil:
+cdef int rectangle_height_cmp(const void *a, const void *b) nogil noexcept:
     cdef int height_a, height_b
     height_a = (<Rectangle*>a)[0].height
     height_b = (<Rectangle*>b)[0].height
@@ -70,7 +70,7 @@ cdef int rectangle_height_cmp(const void *a, const void *b) nogil:
         return -1
 
 
-cdef int rectangle_area_cmp(const void *a, const void *b) nogil:
+cdef int rectangle_area_cmp(const void *a, const void *b) nogil noexcept:
     cdef int area_a, area_b
     area_a = (<Rectangle*>a)[0].area
     area_b = (<Rectangle*>b)[0].area
