@@ -59,7 +59,7 @@ setup(
     include_package_data=True,
     setup_requires=[
         'setuptools>=18.0',
-        'cython'
+        'Cython<3.0.0'
     ],
     test_suite="test",
     classifiers=[
