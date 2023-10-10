@@ -64,7 +64,7 @@ area as small as possible (best effort).
     * The module name is **rpack** which is an abbreviation of the package
       name at PyPI (rectangle-packer).
 
-    * The computational time required by :py:func:`rpack.pack` increases by
+    * The computational time required by ``rpack.pack()`` increases by
       the number *and* size of input rectangles.  If this becomes a problem,
       you might need to implement your own `divide-and-conquer algorithm`_.
 
