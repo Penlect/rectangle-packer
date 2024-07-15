@@ -219,12 +219,10 @@ group index.
         stack_add(stack, &tasks[i], tmp);
     }
     /* Step 2 */
-    unsigned long move_count = 0;
     for(;;){
         if (! move_from_max_to_min(stack, tasks, nr_tasks)){
             break;
         }
-        move_count++;
     }
 
     /* Step 3 */
