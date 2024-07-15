@@ -228,12 +228,10 @@ group index.
     }
 
     /* Step 3 */
-    unsigned long swap_count = 0;
     for(i = 0; i < nr_tasks; i++){
         if (! swap_from_max(stack, tasks, nr_tasks)){
             break;
         }
-        swap_count++;
     }
     free_stack(stack);
     return result;
