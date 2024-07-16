@@ -219,21 +219,17 @@ group index.
         stack_add(stack, &tasks[i], tmp);
     }
     /* Step 2 */
-    unsigned long move_count = 0;
     for(;;){
         if (! move_from_max_to_min(stack, tasks, nr_tasks)){
             break;
         }
-        move_count++;
     }
 
     /* Step 3 */
-    unsigned long swap_count = 0;
     for(i = 0; i < nr_tasks; i++){
         if (! swap_from_max(stack, tasks, nr_tasks)){
             break;
         }
-        swap_count++;
     }
     free_stack(stack);
     return result;
