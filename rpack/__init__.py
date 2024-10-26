@@ -156,14 +156,14 @@ illustrates a solution to a problem discussed at stackoverflow_.
 """
 
 # Module metadata
-__author__ = 'Daniel Andersson'
+__author__ = "Daniel Andersson"
 __maintainer__ = __author__
-__email__ = 'daniel.4ndersson@gmail.com'
+__email__ = "daniel.4ndersson@gmail.com"
 __contact__ = __email__
-__copyright__ = 'Copyright (c) 2017 Daniel Andersson'
-__license__ = 'MIT'
-__url__ = 'https://github.com/Penlect/rectangle-packer'
-__version__ = '2.0.2'
+__copyright__ = "Copyright (c) 2017 Daniel Andersson"
+__license__ = "MIT"
+__url__ = "https://github.com/Penlect/rectangle-packer"
+__version__ = "2.0.2"
 
 # Built-in
 from typing import Iterable, Tuple, List
@@ -174,14 +174,15 @@ from rpack._core import (
     PackingImpossibleError,
     bbox_size,
     packing_density,
-    overlapping
+    overlapping,
 )
 
 enclosing_size = bbox_size
 
 
-def pack(sizes: Iterable[Tuple[int, int]],
-         max_width=None, max_height=None) -> List[Tuple[int, int]]:
+def pack(
+    sizes: Iterable[Tuple[int, int]], max_width=None, max_height=None
+) -> List[Tuple[int, int]]:
     """Pack rectangles into a bounding box with minimal area.
 
     The result is returned as a list of coordinates "(x, y)", which
