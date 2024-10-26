@@ -36,11 +36,11 @@ benchmark:
 	$(PYTHON) -u -O misc/crunch.py --output-dir artifacts/$(VERSION)/data
 	$(PYTHON) -u misc/recstat.py --input-dir artifacts/$(VERSION)/data --output-dir artifacts/$(VERSION)/img
 
-# Build sphinx documentation: HTML + PDF
+# Build sphinx documentation: HTML
 # Not very nice, but use sed to update all versions in image urls
 doc: doc/*.rst doc/conf.py build
 	sed -i -E "s@$(IMG_HOST)/rpack/(.*)/img/@$(IMG_HOST)/rpack/$(VERSION)/img/@g" doc/*.rst rpack/__init__.py
-	cd doc && make html latexpdf
+	cd doc && make html
 
 # Remove non-VCS files
 clean:

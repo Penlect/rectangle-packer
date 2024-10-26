@@ -34,7 +34,7 @@ def randneg():
 
 def randtype():
     length = randint(1, 100)
-    return [(None, 'string') for _ in range(length)]
+    return [(None, "string") for _ in range(length)]
 
 
 def randrest():
@@ -59,8 +59,8 @@ def main(args):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('duration', type=int, help='Seconds to run')
+parser.add_argument("duration", type=int, help="Seconds to run")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = parser.parse_args()
     main(args)

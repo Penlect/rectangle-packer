@@ -1,7 +1,7 @@
 
 ================
 Module Reference
-================	  
+================
 
 
 Functions
@@ -14,7 +14,7 @@ Exceptions
 ==========
 
 .. autoclass:: rpack.PackingImpossibleError
-		  
+
 
 Helper functions
 ================
@@ -26,10 +26,7 @@ Helper functions
 .. autofunction:: rpack.overlapping
 
 
-.. only:: html
-	  
-  Index
-  =====	
+Index
+=====
 
-  View :ref:`genindex`.
-
+View :ref:`genindex`.

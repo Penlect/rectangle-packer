@@ -1,4 +1,3 @@
-
 # Built-in
 import doctest
 import random
@@ -23,12 +22,11 @@ def test(n):
     assert not rpack._core.overlapping(sizes, pos)
     w, h = rpack._core.bbox_size(sizes, pos)
     p = rpack._core.packing_density(sizes, pos)
-    print(f'encl (w={w} x h={h}), area={w*h}, rho={p}')
+    print(f"encl (w={w} x h={h}), area={w*h}, rho={p}")
 
 
 class TestTimeComplexity(unittest.TestCase):
-
     def test(self):
         for i in range(10, 101, 10):
-            r = timeit.repeat(stmt=f'test({i})', number=1, repeat=1, globals=globals())
+            r = timeit.repeat(stmt=f"test({i})", number=1, repeat=1, globals=globals())
             print(i, r)

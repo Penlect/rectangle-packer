@@ -7,13 +7,12 @@ import unittest
 # Local
 import rpack._rpack as rpack
 
-class TestGroup(unittest.TestCase):
 
+class TestGroup(unittest.TestCase):
     def test_flat(self):
         data = [3, 2, 1]
         # Todo: the order should not matter
         self.assertEqual(rpack.group(data, 3), [[3], [2], [1]])
-
 
     def test_nr_groups(self):
         with self.assertRaises(ValueError):
@@ -24,10 +23,8 @@ class TestGroup(unittest.TestCase):
         for nr_groups in range(1, 100):
             assert len(rpack.group(data, nr_groups)) == nr_groups
 
-
     def test_empty_list(self):
         self.assertEqual(rpack.group([], 3), [[], [], []])
-
 
     def test_input_error(self):
         with self.assertRaises(TypeError):
@@ -37,11 +34,9 @@ class TestGroup(unittest.TestCase):
         with self.assertRaises(TypeError):
             rpack.group(None, None)
 
-
     def test_performance(self):
         groups = rpack.group(list(range(1000)), 5)
         self.assertEqual(max(sum(g) for g in groups), 99900)
-
 
     def test_swap_complete(self):
         """Test that no further "swapping" will improve the result"""

@@ -13,14 +13,14 @@ import rpack._core
 # TEST CORE UTILS
 # ===============
 
-class TestPackingDensity(unittest.TestCase):
 
+class TestPackingDensity(unittest.TestCase):
     def test_max_density(self):
         p = rpack._core.packing_density([(10, 10)], [(0, 0)])
         self.assertEqual(p, 1)
 
-class TestOverlapping(unittest.TestCase):
 
+class TestOverlapping(unittest.TestCase):
     def test_overlapping_true(self):
         sizes = [(10, 10), (10, 10)]
         pos = [(0, 0), (9, 9)]
@@ -33,8 +33,8 @@ class TestOverlapping(unittest.TestCase):
         index = rpack._core.overlapping(sizes, pos)
         self.assertFalse(index)
 
-class TestBboxSize(unittest.TestCase):
 
+class TestBboxSize(unittest.TestCase):
     def test_enclosing_size(self):
         """Test enclosing size helper function"""
         sizes = [(3, 5), (1, 1), (1, 1)]
@@ -43,8 +43,10 @@ class TestBboxSize(unittest.TestCase):
         self.assertEqual(width, 4)
         self.assertEqual(height, 6)
 
+
 # TEST INPUT
 # ==========
+
 
 class TestPackInput(unittest.TestCase):
     """Test how rpack.pack handles bad input"""
@@ -80,9 +82,9 @@ class TestPackInput(unittest.TestCase):
     def test_not_integers(self):
         """Non-number should raise TypeError"""
         with self.assertRaises(TypeError):
-            rpack.pack([('garnet', 9)])
+            rpack.pack([("garnet", 9)])
         with self.assertRaises(TypeError):
-            rpack.pack([(9, 'alexandros')])
+            rpack.pack([(9, "alexandros")])
 
     def test_floats(self):
         with self.assertRaises(TypeError):
@@ -96,22 +98,22 @@ class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
         self.assertListEqual(rpack.pack([(10, 10)], None), [(0, 0)])
 
     def test_max_width(self):
-        pos = rpack.pack([(2, 2)]*4, max_width=3)
-        self.assertSetEqual(set(pos), {(0, 2*i) for i in range(4)})
+        pos = rpack.pack([(2, 2)] * 4, max_width=3)
+        self.assertSetEqual(set(pos), {(0, 2 * i) for i in range(4)})
 
     def test_max_width_bad(self):
-        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'max_width'):
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, "max_width"):
             rpack.pack([(2, 2)], max_width=1)
 
     def test_max_width_ok(self):
         rpack.pack([(2, 2)], max_width=2)
 
     def test_max_height(self):
-        pos = rpack.pack([(2, 2)]*4, max_height=3)
-        self.assertSetEqual(set(pos), {(2*i, 0) for i in range(4)})
+        pos = rpack.pack([(2, 2)] * 4, max_height=3)
+        self.assertSetEqual(set(pos), {(2 * i, 0) for i in range(4)})
 
     def test_max_height_bad(self):
-        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'max_height'):
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, "max_height"):
             rpack.pack([(2, 2)], max_height=1)
 
     def test_max_height_ok(self):
@@ -119,27 +121,31 @@ class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
 
     def test_partial_result(self):
         with self.assertRaises(rpack.PackingImpossibleError) as error:
-            rpack.pack([(2, 2)]*4, max_width=3, max_height=3)
-        self.assertEqual(error.exception.args[0], 'Partial result')
+            rpack.pack([(2, 2)] * 4, max_width=3, max_height=3)
+        self.assertEqual(error.exception.args[0], "Partial result")
         self.assertEqual(error.exception.args[1], [(0, 0)])
 
     def test_partial_result_simple(self):
         sizes = [(14, 17), (10, 16)]
         max_width, max_height = (22, 25)
-        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'Partial'):
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, "Partial"):
             rpack.pack(sizes, max_width=max_width, max_height=max_height)
 
     def test_partial_result_width(self):
-        sizes = [(10, 1)]*10
-        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'Partial') as err:
+        sizes = [(10, 1)] * 10
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, "Partial") as err:
             rpack.pack(sizes, max_width=50, max_height=1)
-        self.assertCountEqual(err.exception.args[1], [(0, 0), (10, 0), (20, 0), (30, 0), (40, 0)])
+        self.assertCountEqual(
+            err.exception.args[1], [(0, 0), (10, 0), (20, 0), (30, 0), (40, 0)]
+        )
 
     def test_partial_result_height(self):
-        sizes = [(1, 10)]*10
-        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'Partial') as err:
+        sizes = [(1, 10)] * 10
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, "Partial") as err:
             rpack.pack(sizes, max_width=1, max_height=50)
-        self.assertCountEqual(err.exception.args[1], [(0, 0), (0, 10), (0, 20), (0, 30), (0, 40)])
+        self.assertCountEqual(
+            err.exception.args[1], [(0, 0), (0, 10), (0, 20), (0, 30), (0, 40)]
+        )
 
     def test_max_width_height_square(self):
         for i in range(1, 101):
@@ -197,7 +203,7 @@ class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
     def test_max_width_height_minimal_no_overlap(self):
         sizes = [(11, 17), (11, 6)]
         max_width, max_height = (21, 22)
-        with self.assertRaisesRegex(rpack.PackingImpossibleError, 'Partial'):
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, "Partial"):
             rpack.pack(sizes, max_width=max_width, max_height=max_height)
 
     @unittest.skip("long running")
@@ -208,8 +214,8 @@ class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
                 n = random.randint(1, 20)
                 m = 20
                 sizes = [(random.randint(1, m), random.randint(1, m)) for _ in range(n)]
-                max_width = random.randint(1, m*n + 10)
-                max_height = random.randint(1, m*n + 10)
+                max_width = random.randint(1, m * n + 10)
+                max_height = random.randint(1, m * n + 10)
                 try:
                     pos = rpack.pack(sizes, max_width=max_width, max_height=max_height)
                 except rpack.PackingImpossibleError:
@@ -225,6 +231,7 @@ class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
 
 # TEST OUTPUT
 # ===========
+
 
 class TestPackOutput(unittest.TestCase):
     """Test/compare output of rpack.pack"""
@@ -253,21 +260,22 @@ class TestPackOutput(unittest.TestCase):
         sizes = [(2, 2), (2, 2), (2, 2), (3, 3)]
         pos = rpack.pack(sizes)
         width, height = rpack.enclosing_size(sizes, pos)
-        self.assertEqual(width*height, 25)
+        self.assertEqual(width * height, 25)
 
     def test_medium_pack(self):
         sizes = [(i, i) for i in range(20, 1, -1)]
         pos = rpack.pack(sizes)
         width, height = rpack.enclosing_size(sizes, pos)
-        self.assertLessEqual(width*height, 3045)
+        self.assertLessEqual(width * height, 3045)
 
     def test_no_overlap(self):
         """Make sure no rectangles overlap"""
         for i in range(10, 101, 10):
             with self.subTest(seed=i):
                 random.seed(i)
-                sizes = [(random.randint(1, i), random.randint(1, i))
-                         for _ in range(110 - i)]
+                sizes = [
+                    (random.randint(1, i), random.randint(1, i)) for _ in range(110 - i)
+                ]
                 pos = rpack.pack(sizes)
                 self.assertFalse(rpack._core.overlapping(sizes, pos))
 
@@ -281,4 +289,5 @@ class TestPackOutput(unittest.TestCase):
             self.assertFalse(rpack._core.overlapping(sizes, pos2))
             self.assertLessEqual(
                 rpack._core.packing_density(sizes, pos1),
-                rpack._core.packing_density(sizes, pos2))
+                rpack._core.packing_density(sizes, pos2),
+            )

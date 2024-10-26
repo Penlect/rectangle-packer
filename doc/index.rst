@@ -1,10 +1,4 @@
 
-.. only:: latex
-
-   ===========================
-   Welcome to rectangle-packer
-   ===========================
-
 .. automodule:: rpack
 
 .. toctree::

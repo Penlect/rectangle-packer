@@ -76,47 +76,23 @@ Examples
 
 **Example A:**
 
-.. only:: latex
-
-  .. image:: https://penlect.com/rpack/2.0.1/img/packing_best_10.pdf
-     :alt: pack10
-     :align: center
-
-.. only:: html
-
-  .. figure:: https://penlect.com/rpack/2.0.1/img/packing_best_10.svg
-     :alt: pack10
-     :align: center
+.. figure:: https://penlect.com/rpack/2.0.2/img/packing_best_10.svg
+   :alt: pack10
+   :align: center
 
 **Example B:**
 
-.. only:: latex
-
-  .. image:: https://penlect.com/rpack/2.0.1/img/packing_phi.pdf
-     :alt: packphi
-     :align: center
-
-.. only:: html
-
-  .. figure:: https://penlect.com/rpack/2.0.1/img/packing_phi.svg
-     :alt: packphi
-     :align: center
+.. figure:: https://penlect.com/rpack/2.0.2/img/packing_phi.svg
+   :alt: packphi
+   :align: center
 
 
 **Example C:** Sometimes the input rectangles simply cannot be packed in
 a good way. Here is an example of low packing density:
 
-.. only:: latex
-
-  .. image:: https://penlect.com/rpack/2.0.1/img/packing_worst_10.pdf
-     :alt: pack10bad
-     :align: center
-
-.. only:: html
-
-  .. figure:: https://penlect.com/rpack/2.0.1/img/packing_worst_10.svg
-     :alt: pack10bad
-     :align: center
+.. figure:: https://penlect.com/rpack/2.0.2/img/packing_worst_10.svg
+   :alt: pack10bad
+   :align: center
 
 
 **Example D:** The image below is contributed by Paul Brodersen, and
@@ -156,14 +132,14 @@ illustrates a solution to a problem discussed at stackoverflow_.
 """
 
 # Module metadata
-__author__ = 'Daniel Andersson'
+__author__ = "Daniel Andersson"
 __maintainer__ = __author__
-__email__ = 'daniel.4ndersson@gmail.com'
+__email__ = "daniel.4ndersson@gmail.com"
 __contact__ = __email__
-__copyright__ = 'Copyright (c) 2017 Daniel Andersson'
-__license__ = 'MIT'
-__url__ = 'https://github.com/Penlect/rectangle-packer'
-__version__ = '2.0.2'
+__copyright__ = "Copyright (c) 2017 Daniel Andersson"
+__license__ = "MIT"
+__url__ = "https://github.com/Penlect/rectangle-packer"
+__version__ = "2.0.2"
 
 # Built-in
 from typing import Iterable, Tuple, List
@@ -174,14 +150,15 @@ from rpack._core import (
     PackingImpossibleError,
     bbox_size,
     packing_density,
-    overlapping
+    overlapping,
 )
 
 enclosing_size = bbox_size
 
 
-def pack(sizes: Iterable[Tuple[int, int]],
-         max_width=None, max_height=None) -> List[Tuple[int, int]]:
+def pack(
+    sizes: Iterable[Tuple[int, int]], max_width=None, max_height=None
+) -> List[Tuple[int, int]]:
     """Pack rectangles into a bounding box with minimal area.
 
     The result is returned as a list of coordinates "(x, y)", which
