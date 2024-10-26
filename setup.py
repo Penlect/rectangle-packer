@@ -18,10 +18,14 @@ exec("".join(lines), init.__dict__)
 
 # Generate the readme file from the doc string.
 with open("README.rst", "w") as readme_file:
-    lines = init.__doc__.splitlines()[1:]
+    lines = list()
+    for line in init.__doc__.splitlines()[1:]:
+        if line.startswith(".. figure::"):
+            line = line.replace(".svg", ".png")
+        lines.append(line)
     content = "\n".join(lines).lstrip()
-    # Github/gitlab does not like pdf
-    content = content.replace(".pdf", ".png")
+    # PyPI don't like this syntax:
+    content = content.replace(":py:func:`rpack.pack`", "``rpack.pack``")
     readme_file.write(content)
 
 ext_modules = [

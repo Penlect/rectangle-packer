@@ -1,4 +1,3 @@
-
 =============
 The Algorithm
 =============
@@ -26,17 +25,9 @@ by :py:func:`rpack.pack`.
 Extra grid lines have been added to the image below to demonstrate how
 these cells are created.
 
-.. only:: latex
-
-  .. image:: https://penlect.com/rpack/2.0.1/img/example_grid.pdf
-     :alt: compute time
-     :align: center
-
-.. only:: html
-
-  .. figure:: https://penlect.com/rpack/2.0.1/img/example_grid.gif
-     :alt: compute time
-     :align: center
+.. figure:: https://penlect.com/rpack/2.0.2/img/example_grid.gif
+   :alt: compute time
+   :align: center
 
 The algorithm is not documented more than this yet. Until it is, you
 will have to study the files ``src/rpackcore.c`` and

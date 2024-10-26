@@ -63,10 +63,15 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.imgmath",
     "sphinx.ext.viewcode",
-    "sphinx.ext.imgmath",
-    "sphinx_rtd_theme"
-    # 'sphinx.ext.extlinks',
+    "sphinx.ext.napoleon",  # Support for Google/NumPy style docstrings
+    "sphinx.ext.intersphinx",  # Link to other project's documentation
+    "sphinx_rtd_theme",
 ]
+
+# Intersphinx configuration
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -85,7 +90,7 @@ master_doc = "index"
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -107,37 +112,5 @@ html_static_path = ["_static"]
 
 html_logo = "_static/pack.gif"
 
-
-# -- Options for LaTeX output ------------------------------------------------
-
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #
-    "papersize": "a4paper",
-    # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
-    # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
-    # Latex figure (float) alignment
-    #
-    # 'figure_align': 'htbp',
-    "extraclassoptions": "openany,oneside",
-}
-
-# latex_logo = '_static/packing_best_100.pdf'
-latex_show_urls = "footnote"
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title,
-#  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (
-        master_doc,
-        "rpack.tex",
-        "rectangle-packer documentation",
-        rpack.__author__,
-        "manual",
-    ),
-]
+# Output file base name for HTML help builder.
+htmlhelp_basename = "rectangle-packerdoc"
