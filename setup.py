@@ -60,7 +60,7 @@ setup(
     ext_modules=ext_modules,
     packages=find_packages(exclude=("test",)),
     include_package_data=True,
-    setup_requires=["setuptools>=18.0", "Cython<3.0.0"],
+    setup_requires=["setuptools>=18.0", "Cython"],
     test_suite="test",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
