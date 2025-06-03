@@ -119,6 +119,14 @@ class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
     def test_max_height_ok(self):
         rpack.pack([(2, 2)], max_height=2)
 
+    def test_max_width_zero(self):
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, "max_width zero"):
+            rpack.pack([(2, 2)], max_width=0)
+
+    def test_max_height_zero(self):
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, "max_height zero"):
+            rpack.pack([(2, 2)], max_height=0)
+
     def test_partial_result(self):
         with self.assertRaises(rpack.PackingImpossibleError) as error:
             rpack.pack([(2, 2)] * 4, max_width=3, max_height=3)

@@ -218,4 +218,6 @@ def pack(
         raise TypeError("max_height must be an integer")
     if not isinstance(sizes, list):
         sizes = list(sizes)
-    return _pack(sizes, max_width or -1, max_height or -1)
+    mw = -1 if max_width is None else max_width
+    mh = -1 if max_height is None else max_height
+    return _pack(sizes, mw, mh)
