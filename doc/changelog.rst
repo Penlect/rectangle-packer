@@ -2,6 +2,15 @@
 Changelog
 =========
 
+Unreleased
+==========
+
+**Removed:**
+
+* Extension module ``rpack._rpack`` along with the legacy ``rpack.group``
+  implementation and deprecated ``rpack._rpack.pack`` entry point.
+
+
 Version 2.0.1 (2021-05-13)
 ==========================
 
