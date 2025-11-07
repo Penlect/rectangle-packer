@@ -57,6 +57,18 @@ input rectangle.
 These positions yield a packing with no overlaps and an enclosing area
 that is as small as possible (best effort).
 
+``rpack.pack`` also accepts optional ``max_width`` and ``max_height``
+arguments if the packing must fit inside a specific bounding box.  When
+the constraint cannot be satisfied a :py:exc:`rpack.PackingImpossibleError`
+is raised.  For example, the following call forces all rectangles to fit
+within a width of ``300``::
+
+    >>> rpack.pack(sizes, max_width=300)
+    [(0, 0), (58, 0), (289, 0), (289, 113)]
+
+If the width constraint is too small, ``PackingImpossibleError`` is
+raised.
+
 .. note::
 
     * You must use **positive integers** as rectangle width and height.
