@@ -40,14 +40,6 @@ ext_modules = [
         sources=["rpack/_core.pyx", "src/rpackcore.c"],
         include_dirs=["include"],
     ),
-    Extension(
-        # The rpack._rpack extension module is deprecated. It will be
-        # removed in a future version. This was the implementation
-        # used in versions 1.0.0 and 1.1.0.
-        "rpack._rpack",
-        sources=["src/rpack.c", "src/areapack.c", "src/taskpack.c"],
-        include_dirs=["include"],
-    ),
 ]
 for e in ext_modules:
     e.cython_directives = {"language_level": "3", "embedsignature": True}

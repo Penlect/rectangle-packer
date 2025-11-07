@@ -1,4 +1,4 @@
-"""Test pack._core module"""
+"""Test rpack._core module"""
 
 # Built-in
 import random
@@ -6,7 +6,6 @@ import unittest
 
 # Local
 import rpack
-import rpack._rpack
 import rpack._core
 
 
@@ -287,15 +286,3 @@ class TestPackOutput(unittest.TestCase):
                 pos = rpack.pack(sizes)
                 self.assertFalse(rpack._core.overlapping(sizes, pos))
 
-    def test_backwards_compatible(self):
-        for i in range(10):
-            random.seed(i)
-            sizes = [(random.randint(1, 50), random.randint(1, 50)) for _ in range(20)]
-            pos1 = rpack._rpack.pack(sizes)
-            self.assertFalse(rpack._core.overlapping(sizes, pos1))
-            pos2 = rpack.pack(sizes)
-            self.assertFalse(rpack._core.overlapping(sizes, pos2))
-            self.assertLessEqual(
-                rpack._core.packing_density(sizes, pos1),
-                rpack._core.packing_density(sizes, pos2),
-            )
