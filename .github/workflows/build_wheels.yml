@@ -16,6 +16,9 @@ env:
   CIBW_BUILD_VERBOSITY: 3
   CIBW_TEST_COMMAND: "python -m unittest discover -v {project}/test"
   CIBW_BUILD: "cp39-* cp31?-*"
+  # Explicitly skip free-threaded ("t") builds across 3.10–3.14
+  # to keep parity with prior artifacts until opted in.
+  CIBW_SKIP: "cp31?t-*"
 
 jobs:
   build_wheels:
@@ -30,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.23.2
+        uses: pypa/cibuildwheel@v3.2.1
         # env:
         #   CIBW_SOME_OPTION: value
         #    ...
