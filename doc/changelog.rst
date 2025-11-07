@@ -11,6 +11,67 @@ Unreleased
   implementation and deprecated ``rpack._rpack.pack`` entry point.
 
 
+Version 2.0.5 (2025-11-07)
+==========================
+
+**Added:**
+
+* Binary wheels and packaging metadata for Python 3.14.
+
+**Bugfixes:**
+
+* ``rpack.pack()`` now preserves ``max_width``/``max_height`` values of zero so
+  that impossible packings raise ``PackingImpossibleError`` correctly instead of
+  being treated as unbounded.
+
+
+Version 2.0.4 (2025-03-30)
+==========================
+
+**Other changes:**
+
+* Publishing a release on GitHub now uploads the built distribution to PyPI
+  automatically.
+
+
+Version 2.0.3 (2025-03-30)
+==========================
+
+**Changed:**
+
+* Documentation builds target HTML only, removing the LaTeX toolchain and
+  updating the Read the Docs configuration accordingly.
+* Reformatted the Python sources and documentation helpers with ``black`` to
+  standardize code style across the project.
+* Improved the release workflow to handle PyPI uploads reliably, including
+  fixing the long description metadata and skipping artefacts that were already
+  published.
+
+**Bugfixes:**
+
+* Removed unused bookkeeping in ``taskpack.c`` to silence compiler warnings.
+
+
+Version 2.0.2 (2023-10-10)
+==========================
+
+**Added:**
+
+* Declared support for Python 3.12 in the package metadata.
+
+**Changed:**
+
+* Adopted GitHub Actions (cibuildwheel) for building release artefacts across
+  supported platforms.
+* Updated hosted documentation assets and build configuration.
+* Relaxed the Cython build configuration to stay compatible with newer Cython
+  releases while silencing future ``nogil`` signature warnings.
+
+**Bugfixes:**
+
+* Restored compatibility with Cython 3 when compiling the extension module.
+
+
 Version 2.0.1 (2021-05-13)
 ==========================
 
