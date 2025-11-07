@@ -20,13 +20,13 @@ Rectangle Packing Algorithm for Building CSS Sprites`_.
 Installation
 ============
 
-Install latest version from `PyPI`_:
+Install the latest version from `PyPI`_:
 
 .. code:: sh
 
     $ python3 -m pip install rectangle-packer
 
-Or `clone the repository`_ and install with:
+Or `clone the repository`_ and install it with:
 
 .. code:: sh
 
@@ -51,11 +51,11 @@ Basic usage
     >>> positions
     [(0, 0), (58, 0), (289, 0), (289, 113)]
 
-The output positions are the lower left corner coordinates of each
-rectangle in the input.
+The output positions are the lower-left corner coordinates of each
+input rectangle.
 
-These positions will yield a packing with no overlaps and enclosing
-area as small as possible (best effort).
+These positions yield a packing with no overlaps and an enclosing area
+that is as small as possible (best effort).
 
 .. note::
 
@@ -85,16 +85,17 @@ Examples
    :align: center
 
 
-**Example C:** Sometimes the input rectangles simply cannot be packed in
-a good way. Here is an example of low packing density:
+**Example C:** Sometimes the input rectangles simply cannot be packed
+very efficiently. Here's an example that demonstrates a low packing
+density:
 
 .. figure:: https://penlect.com/rpack/2.0.2/img/packing_worst_10.png
    :alt: pack10bad
    :align: center
 
 
-**Example D:** The image below is contributed by Paul Brodersen, and
-illustrates a solution to a problem discussed at stackoverflow_.
+**Example D:** The image below, contributed by Paul Brodersen, illustrates
+a solution to a problem discussed at stackoverflow_.
 
 .. image:: https://i.stack.imgur.com/kLat8.png
     :alt: PaulBrodersenExampleImage

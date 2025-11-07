@@ -8,19 +8,19 @@ are tested.
 The algorithm keeps track of a grid of cells internally.  Each cell
 belongs to a column and a row. The index of the column and row are
 used together as a key in a lookup table (known as the "jump matrix")
-which contains and information needed to decide if the corresponding
+which contains the information needed to decide if the corresponding
 cell is free or occupied.
 
 As more and more rectangles are added, the grid gets partitioned in
 smaller and smaller pieces, and the number of cells, columns and rows
 increases.
 
-If all rectangles were successfully packed inside the bounding box,
-its area is recorded and another bounding box, with smaller area is
-selected - and the procedure continues on that candidate. When all
-feasible bounding boxes are tested, the best one is used for the final
-packing. The rectangles' positions from this final packing is returned
-by :py:func:`rpack.pack`.
+If all rectangles are successfully packed inside a bounding box, its
+area is recorded and another candidate with a smaller area is selected.
+The procedure continues with that candidate until all feasible bounding
+boxes have been tested. The best candidate is used for the final
+packing, and the rectangles' positions from that packing are returned by
+:py:func:`rpack.pack`.
 
 Extra grid lines have been added to the image below to demonstrate how
 these cells are created.
@@ -29,6 +29,5 @@ these cells are created.
    :alt: compute time
    :align: center
 
-The algorithm is not documented more than this yet. Until it is, you
-will have to study the files ``src/rpackcore.c`` and
-``rpack/_core.pyx`` for more details.
+The algorithm is not documented any further yet; until it is, study
+``src/rpackcore.c`` and ``rpack/_core.pyx`` for more details.
