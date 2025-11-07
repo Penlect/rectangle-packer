@@ -118,8 +118,8 @@ illustrates a solution to a problem discussed at stackoverflow_.
 .. |PyPI-Wheel| image:: https://img.shields.io/pypi/wheel/rectangle-packer.svg
    :target: https://pypi.org/project/rectangle-packer
 
-.. |Build-Status| image:: https://travis-ci.com/Penlect/rectangle-packer.svg?branch=master
-   :target: https://travis-ci.com/Penlect/rectangle-packer
+.. |Build-Status| image:: https://github.com/Penlect/rectangle-packer/actions/workflows/build_wheels.yml/badge.svg?branch=master
+   :target: https://github.com/Penlect/rectangle-packer/actions/workflows/build_wheels.yml
 
 .. |Read-the-Docs| image:: https://img.shields.io/readthedocs/rectangle-packer.svg
    :target: https://rectangle-packer.readthedocs.io/en/latest
