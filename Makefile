@@ -1,9 +1,6 @@
-# Grab version and tags from GIT
-VERSION = $(shell git describe --tags --always)
-TAG = $(shell git describe --tags --abbrev=0)
-SDIST = rectangle-packer-$(VERSION).tar.gz
-IMG_HOST = "https://penlect.com"
 PYTHON = "python3"
+VERSION = $(shell sed -n -E 's/^__version__ = "([^"]+)"/\1/p' rpack/__init__.py)
+SDIST = rectangle_packer-$(VERSION).tar.gz
 
 all:
 
@@ -12,7 +9,6 @@ build: dist/$(SDIST)
 # Build extension module and source distribution
 dist/$(SDIST): src/*.c include/*.h rpack/*.pyx rpack/*.pxd
 	-rm -rf build/
-	sed -i -E "s/__version__ = '(.*)'/__version__ = '$(VERSION)'/g" rpack/__init__.py
 	$(PYTHON) setup.py build_ext --inplace
 	$(PYTHON) setup.py sdist
 	test -f dist/$(SDIST)
@@ -37,15 +33,11 @@ benchmark:
 	$(PYTHON) -u misc/recstat.py --input-dir artifacts/$(VERSION)/data --output-dir artifacts/$(VERSION)/img
 
 # Build sphinx documentation: HTML
-# Not very nice, but use sed to update all versions in image urls
 doc: doc/*.rst doc/conf.py build
-	sed -i -E "s@$(IMG_HOST)/rpack/(.*)/img/@$(IMG_HOST)/rpack/$(VERSION)/img/@g" doc/*.rst rpack/__init__.py
 	cd doc && make html
 
 # Remove non-VCS files
 clean:
-	sed -i -E "s/__version__ = '(.*)'/__version__ = '$(TAG)'/g" rpack/__init__.py
-	sed -i -E "s@$(IMG_HOST)/rpack/(.*)/img/@$(IMG_HOST)/rpack/$(TAG)/img/@g" doc/*.rst rpack/__init__.py
 	-cd doc && make clean
 	-rm -rf dist/ build/ artifacts/
 	-rm -rf *.egg-info/
