@@ -2,9 +2,6 @@
 
 name: Build and upload to PyPI
 
-# Build on every branch push, tag push, and pull request change:
-# on: [push, pull_request]
-# Alternatively, to publish when a (published) GitHub Release is created, use the following:
 on:
   push:
   pull_request:
@@ -52,12 +49,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Optional, use if you use setuptools_scm
-        submodules: true  # Optional, use if you have submodules
 
     - name: Build SDist
       run: pipx run build --sdist
+
+    - name: Verify tracked files unchanged
+      run: |
+        git update-index -q --refresh
+        git diff --exit-code
+        git diff --cached --exit-code
 
     - uses: actions/upload-artifact@v4
       with:
@@ -72,6 +72,35 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - name: Verify tag matches rpack.__version__
+      run: |
+        python - <<'PY'
+        import os
+        import re
+        from pathlib import Path
+
+        text = Path("rpack/__init__.py").read_text(encoding="utf-8")
+        match = re.search(r'^__version__ = "([^"]+)"$', text, flags=re.MULTILINE)
+        if not match:
+            raise SystemExit("Could not find __version__ in rpack/__init__.py")
+        package_version = match.group(1)
+        tag = os.environ["GITHUB_REF_NAME"]
+        if tag.startswith("v"):
+            tag = tag[1:]
+        if package_version != tag:
+            raise SystemExit(
+                f"Version mismatch: tag={os.environ['GITHUB_REF_NAME']} "
+                f"but rpack.__version__={package_version}"
+            )
+        print(f"Version check OK: {package_version}")
+        PY
+
     - uses: actions/download-artifact@v4
       with:
         pattern: cibw-*
