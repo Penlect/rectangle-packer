@@ -86,13 +86,13 @@ Examples
 
 **Example A:**
 
-.. figure:: https://penlect.com/rpack/2.0.2/img/packing_best_10.png
+.. figure:: doc/_static/img/packing_best_10.png
    :alt: pack10
    :align: center
 
 **Example B:**
 
-.. figure:: https://penlect.com/rpack/2.0.2/img/packing_phi.png
+.. figure:: doc/_static/img/packing_phi.png
    :alt: packphi
    :align: center
 
@@ -101,7 +101,7 @@ Examples
 very efficiently. Here's an example that demonstrates a low packing
 density:
 
-.. figure:: https://penlect.com/rpack/2.0.2/img/packing_worst_10.png
+.. figure:: doc/_static/img/packing_worst_10.png
    :alt: pack10bad
    :align: center
 
@@ -109,7 +109,7 @@ density:
 **Example D:** The image below, contributed by Paul Brodersen, illustrates
 a solution to a problem discussed at stackoverflow_.
 
-.. image:: https://i.stack.imgur.com/kLat8.png
+.. image:: doc/_static/img/kLat8.png
     :alt: PaulBrodersenExampleImage
     :align: center
     :width: 450px
