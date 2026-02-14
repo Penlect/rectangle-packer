@@ -11,6 +11,7 @@ $ indent -kr --no-tabs rpackcore.c
 #include <string.h>
 #include <assert.h>
 #include <limits.h>
+#include <stdint.h>
 
 #include "rpackcore.h"
 
@@ -146,13 +147,34 @@ cut(CellLink * self, Cell * victim, long end_pos, size_t *src_i,
 static JumpMatrix alloc_jump_matrix(size_t size)
 {
     size_t i, len = 0;
+    size_t row_ptr_bytes = 0;
+    size_t matrix_size = 0;
+    size_t matrix_bytes = 0;
     Cell **ptr, ***arr;
 
     if (size == 0) {
         size = 1;
     }
 
-    len = sizeof(Cell **) * size + sizeof(Cell *) * size * size;
+    if (size > SIZE_MAX / sizeof(Cell **)) {
+        return NULL;
+    }
+    row_ptr_bytes = sizeof(Cell **) * size;
+
+    if (size > SIZE_MAX / size) {
+        return NULL;
+    }
+    matrix_size = size * size;
+
+    if (matrix_size > SIZE_MAX / sizeof(Cell *)) {
+        return NULL;
+    }
+    matrix_bytes = sizeof(Cell *) * matrix_size;
+
+    if (row_ptr_bytes > SIZE_MAX - matrix_bytes) {
+        return NULL;
+    }
+    len = row_ptr_bytes + matrix_bytes;
     if ((arr = (Cell ***) malloc(len)) == NULL) {
         return NULL;
     }
@@ -652,6 +674,13 @@ static void test_jump_matrix_copy(void)
     free(jm);
 }
 
+static void test_jump_matrix_size_overflow(void)
+{
+    JumpMatrix jm = NULL;
+    jm = alloc_jump_matrix(SIZE_MAX);
+    assert(jm == NULL);
+}
+
 static void test_grid(void)
 {
     Grid *grid = NULL;
@@ -733,6 +762,7 @@ int main(void)
     printf("CELL LINK: PASSED\n");
     test_jump_matrix();
     test_jump_matrix_copy();
+    test_jump_matrix_size_overflow();
     printf("JUMP MATRIX: PASSED\n");
     test_grid();
     test_grid_split();
