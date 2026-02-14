@@ -28,7 +28,7 @@ __contact__ = __email__
 __copyright__ = "Copyright (c) 2017 Daniel Andersson"
 __license__ = "MIT"
 __url__ = "https://github.com/Penlect/rectangle-packer"
-__version__ = "2.0.5"
+__version__ = "2.0.6"
 
 # Built-in
 from typing import Iterable, Tuple, List

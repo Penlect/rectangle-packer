@@ -2,13 +2,27 @@
 Changelog
 =========
 
-Unreleased
-==========
+Version 2.0.6 (2026-02-14)
+==========================
 
 **Removed:**
 
 * Extension module ``rpack._rpack`` along with the legacy ``rpack.group``
   implementation and deprecated ``rpack._rpack.pack`` entry point.
+
+**Bugfixes:**
+
+* Guarded area and total-area arithmetic against ``long`` overflow in the core
+  packing path.
+* Hardened jump-matrix allocation math and split-index bounds checks to prevent
+  overflow and out-of-bounds access.
+* Updated overflow-focused tests to behave consistently across platforms.
+
+**Other changes:**
+
+* Improved packaging/release tooling by tightening sdist inputs and hardening
+  release workflow checks.
+* Added a benchmark CLI and refreshed documentation/build metadata.
 
 
 Version 2.0.5 (2025-11-07)
