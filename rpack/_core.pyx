@@ -87,7 +87,7 @@ cdef class RectangleSet:
 
     cdef:
         Rectangle *rectangles
-        Py_ssize_t length
+        size_t length
         long sum_width
         long sum_height
 
