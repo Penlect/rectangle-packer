@@ -1,38 +1,19 @@
 """rpack build script"""
 
-import importlib.util
+import re
+from pathlib import Path
+
 from setuptools import setup, Extension, find_packages
 
-# The package can't be imported at this point since the extension
-# module rpack._core does not exist yet. Therefore, we import
-# __init__.py partially.
-with open("rpack/__init__.py") as init:
-    lines = list()
-    for line in init.readlines():
-        if line.startswith(("from ", "import ")):
-            break
-        lines.append(line)
-spec = importlib.util.spec_from_loader("init", loader=None)
-init = importlib.util.module_from_spec(spec)
-exec("".join(lines), init.__dict__)
 
+def package_version_from_init() -> str:
+    with open("rpack/__init__.py", encoding="utf-8") as fh:
+        text = fh.read()
+    match = re.search(r'^__version__ = "([^"]+)"$', text, flags=re.MULTILINE)
+    if not match:
+        raise RuntimeError("Failed to read __version__ from rpack/__init__.py")
+    return match.group(1)
 
-def adjust_for_pypi(text: str) -> str:
-    # PyPI don't like this syntax:
-    lines = list()
-    for line in text.splitlines():
-        if line.startswith(".. figure::"):
-            line = line.replace(".svg", ".png")
-        lines.append(line)
-    text = "\n".join(lines)
-    text = text.replace(":py:func:`rpack.pack`", "``rpack.pack``")
-    return text.strip()
-
-
-# Generate the readme file from the doc string.
-with open("README.rst", "w") as readme_file:
-    content = adjust_for_pypi("\n".join(init.__doc__.splitlines()[1:]))
-    readme_file.write(content)
 
 ext_modules = [
     Extension(
@@ -46,20 +27,19 @@ for e in ext_modules:
 
 setup(
     name="rectangle-packer",
-    version=init.__version__,
-    author=init.__author__,
-    author_email=init.__email__,
-    description=init.__doc__.splitlines()[0].strip(),
-    long_description=adjust_for_pypi(init.__doc__),
+    version=package_version_from_init(),
+    author="Daniel Andersson",
+    author_email="daniel.4ndersson@gmail.com",
+    description="Pack a set of rectangles into a bounding box with minimum area",
+    long_description=Path("README-pypi.rst").read_text(encoding="utf-8"),
     long_description_content_type="text/x-rst",
-    license=init.__license__,
+    license="MIT",
     keywords="pack rectangle packing rectangles enclosing 2D",
-    url=init.__url__,
+    url="https://github.com/Penlect/rectangle-packer",
     ext_modules=ext_modules,
     packages=find_packages(exclude=("test",)),
     include_package_data=True,
-    setup_requires=["setuptools>=18.0", "Cython"],
-    test_suite="test",
+    python_requires=">=3.9",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
@@ -72,9 +52,6 @@ setup(
         "Operating System :: MacOS",
         "Operating System :: Microsoft :: Windows :: Windows 10",
         "Programming Language :: C",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",

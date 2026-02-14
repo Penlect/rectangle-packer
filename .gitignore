@@ -11,7 +11,10 @@ dist/
 *.png
 *.gif
 *.svg
-*.pdf
+!doc/_static/img/*.png
+!doc/_static/img/*.gif
+!doc/_static/img/*.svg
+!doc/_static/img/*.pdf
 test/*.png
 test/*.txt
 test/c_tests

@@ -25,7 +25,7 @@ packing, and the rectangles' positions from that packing are returned by
 Extra grid lines have been added to the image below to demonstrate how
 these cells are created.
 
-.. figure:: https://penlect.com/rpack/2.0.2/img/example_grid.gif
+.. figure:: _static/img/example_grid.gif
    :alt: compute time
    :align: center
 

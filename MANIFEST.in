@@ -1,8 +1,9 @@
 include requirements*.txt
-recursive-include doc *
+prune doc
 include include/*.h
 include rpack/*.pyx
 include rpack/*.pxd
 include LICENSE.md
+include README-pypi.rst
 include misc/*.py
 include Makefile

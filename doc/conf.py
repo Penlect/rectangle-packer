@@ -15,10 +15,10 @@
 import os
 import sys
 
-if "RTD" not in os.environ:
+if os.environ.get("READTHEDOCS") != "True":
     # On Read the Docs the package will get "setup.py installed" and
     # then we don't want to mess with the Python path.
-    # Make sure the RTD environment variable is set on Read the Docs.
+    # Read the Docs exposes READTHEDOCS=True in the build environment.
     sys.path.insert(0, os.path.abspath(".."))
 
 import rpack
@@ -34,19 +34,6 @@ release = rpack.__version__
 
 # The short X.Y version
 version = release
-
-
-def module_docstr(app, what, name, obj, options, lines):
-    if what != "module" or name != "rpack":
-        return
-    del lines[:2]
-    del lines[3:7]  # Remove badges, svg doesn't work with latex
-
-
-def setup(app):
-    from sphinx.ext.autodoc import cut_lines
-
-    app.connect("autodoc-process-docstring", module_docstr)
 
 
 # -- General configuration ---------------------------------------------------
