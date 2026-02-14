@@ -79,7 +79,7 @@ Grid *grid_alloc(size_t size, long width, long height);
 void grid_free(Grid *grid);
 void grid_clear(Grid *self);
 int grid_find_region(Grid *grid, Rectangle *rectangle, Region *reg);
-void grid_split(Grid *self, Region *reg);
+int grid_split(Grid *self, Region *reg);
 long grid_search_bbox(Grid *grid, Rectangle *sizes, BBoxRestrictions *bbr);
 
 #endif
