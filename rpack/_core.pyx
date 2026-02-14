@@ -71,7 +71,7 @@ cdef int rectangle_height_cmp(const void *a, const void *b) noexcept nogil:
 
 
 cdef int rectangle_area_cmp(const void *a, const void *b) noexcept nogil:
-    cdef int area_a, area_b
+    cdef long area_a, area_b
     area_a = (<Rectangle*>a)[0].area
     area_b = (<Rectangle*>b)[0].area
     if area_a < area_b:
