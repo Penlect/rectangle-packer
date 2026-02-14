@@ -1,8 +1,8 @@
 """Test rpack._core module"""
 
 # Built-in
+import ctypes
 import random
-import sys
 import unittest
 
 # Local
@@ -51,6 +51,9 @@ class TestBboxSize(unittest.TestCase):
 class TestPackInput(unittest.TestCase):
     """Test how rpack.pack handles bad input"""
 
+    _LONG_BITS = ctypes.sizeof(ctypes.c_long) * 8
+    _LONG_MAX = (1 << (_LONG_BITS - 1)) - 1
+
     def test_empty(self):
         """Empty input should give empty output"""
         self.assertListEqual(rpack.pack([]), [])
@@ -91,11 +94,12 @@ class TestPackInput(unittest.TestCase):
             rpack.pack([[1.99, 1.99]])
 
     def test_area_overflow(self):
+        too_wide = self._LONG_MAX // 2 + 1
         with self.assertRaisesRegex(OverflowError, "area"):
-            rpack.pack([(sys.maxsize, 2)])
+            rpack.pack([(too_wide, 2)])
 
     def test_total_area_overflow(self):
-        side = sys.maxsize // 2 + 1
+        side = self._LONG_MAX // 2 + 1
         with self.assertRaisesRegex(OverflowError, "area"):
             rpack.pack([(side, 1), (side, 1)])
 
