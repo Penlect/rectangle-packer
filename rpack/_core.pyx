@@ -264,6 +264,7 @@ cdef class Grid:
 
     cdef int pack(self, RectangleSet rset, long width, long height) except -1:
         cdef size_t i = 0
+        cdef int split_status
         cdef Region reg
         if self.cgrid.size + 1 < rset.length:
             raise PackingImpossibleError(
@@ -281,7 +282,11 @@ cdef class Grid:
                     return 1
                 r.x = start_pos(reg.col_cell_start)
                 r.y = start_pos(reg.row_cell_start)
-                grid_split(self.cgrid, &reg)
+                split_status = grid_split(self.cgrid, &reg)
+                if split_status != 0:
+                    r.x = NO_POSITION
+                    r.y = NO_POSITION
+                    return 1
         return 0
 
 
