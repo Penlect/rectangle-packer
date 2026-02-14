@@ -82,6 +82,18 @@ cdef int rectangle_area_cmp(const void *a, const void *b) noexcept nogil:
         return -1
 
 
+cdef inline bint positive_area_overflows_long(long width, long height) noexcept nogil:
+    return width > 0 and height > 0 and width > LONG_MAX // height
+
+
+cdef inline long safe_bbox_area(long width, long height) noexcept nogil:
+    if width <= 0 or height <= 0:
+        return -1
+    if positive_area_overflows_long(width, height):
+        return LONG_MAX
+    return width * height
+
+
 cdef class RectangleSet:
     """Container for a set of rectangles to be packed."""
 
@@ -103,7 +115,7 @@ cdef class RectangleSet:
     def __cinit__(self, sizes):
         cdef:
             size_t i
-            long w, h
+            long w, h, rect_area
 
         if len(sizes) == 0:
             raise ValueError('Empty sizes')
@@ -142,14 +154,19 @@ cdef class RectangleSet:
             if h < self.min_height:
                 self.min_height = h
 
-            self.area += w*h
+            if positive_area_overflows_long(w, h):
+                raise OverflowError("Rectangle area too large")
+            rect_area = w*h
+            if self.area > LONG_MAX - rect_area:
+                raise OverflowError("Total rectangle area too large")
+            self.area += rect_area
 
             self.rectangles[i].width = w
             self.rectangles[i].height = h
             self.rectangles[i].x = NO_POSITION
             self.rectangles[i].y = NO_POSITION
             self.rectangles[i].index = i
-            self.rectangles[i].area = w*h
+            self.rectangles[i].area = rect_area
             self.rectangles[i].wide = (w >= h)
             self.rectangles[i].rotated = False
             i += 1
@@ -346,7 +363,7 @@ def pack(sizes, long max_width, long max_height):
 
     rset.sort_by_height()
     w, h = grid.search_bbox(rset, &bbr)
-    area = w*h
+    area = safe_bbox_area(w, h)
     if 0 < area < bbr.max_area:
         bbr.max_area = area
         best_w = w
@@ -355,7 +372,7 @@ def pack(sizes, long max_width, long max_height):
 
     rset.sort_by_width()
     w, h = grid.search_bbox(rset, &bbr)
-    area = w*h
+    area = safe_bbox_area(w, h)
     if 0 < area < bbr.max_area:
         bbr.max_area = area
         best_w = w
@@ -371,7 +388,7 @@ def pack(sizes, long max_width, long max_height):
     bbr.max_height = max_width
 
     w, h = grid.search_bbox(rset, &bbr)
-    area = w*h
+    area = safe_bbox_area(w, h)
     if 0 < area < bbr.max_area:
         bbr.max_area = area
         best_w = w
@@ -380,7 +397,7 @@ def pack(sizes, long max_width, long max_height):
 
     rset.sort_by_width()
     w, h = grid.search_bbox(rset, &bbr)
-    area = w*h
+    area = safe_bbox_area(w, h)
     if 0 < area < bbr.max_area:
         bbr.max_area = area
         best_w = w

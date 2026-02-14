@@ -2,6 +2,7 @@
 
 # Built-in
 import random
+import sys
 import unittest
 
 # Local
@@ -88,6 +89,15 @@ class TestPackInput(unittest.TestCase):
     def test_floats(self):
         with self.assertRaises(TypeError):
             rpack.pack([[1.99, 1.99]])
+
+    def test_area_overflow(self):
+        with self.assertRaisesRegex(OverflowError, "area"):
+            rpack.pack([(sys.maxsize, 2)])
+
+    def test_total_area_overflow(self):
+        side = sys.maxsize // 2 + 1
+        with self.assertRaisesRegex(OverflowError, "area"):
+            rpack.pack([(side, 1), (side, 1)])
 
 
 class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
@@ -285,4 +295,3 @@ class TestPackOutput(unittest.TestCase):
                 ]
                 pos = rpack.pack(sizes)
                 self.assertFalse(rpack._core.overlapping(sizes, pos))
-
