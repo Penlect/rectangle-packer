@@ -36,19 +36,6 @@ release = rpack.__version__
 version = release
 
 
-def module_docstr(app, what, name, obj, options, lines):
-    if what != "module" or name != "rpack":
-        return
-    del lines[:2]
-    del lines[3:7]  # Remove badges, svg doesn't work with latex
-
-
-def setup(app):
-    from sphinx.ext.autodoc import cut_lines
-
-    app.connect("autodoc-process-docstring", module_docstr)
-
-
 # -- General configuration ---------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.

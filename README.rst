@@ -6,6 +6,8 @@ Welcome to rectangle-packer
 
 |PyPI-Downloads|
 
+.. docs:start:landing_intro
+
 **Primary use:** Given a set of rectangles with fixed orientations,
 find a bounding box of minimum area that contains them all with no
 overlap.
@@ -16,6 +18,10 @@ Rectangle Packing Algorithm for Building CSS Sprites`_.
 * The latest documentation is available on `Read the Docs`_.
 * The source code is available on `GitHub`_.
 
+.. docs:end:landing_intro
+
+
+.. docs:start:landing_installation
 
 Installation
 ============
@@ -30,8 +36,12 @@ Or `clone the repository`_ and install it with:
 
 .. code:: sh
 
-    $ python3 setup.py install
+    $ python3 -m pip install .
 
+.. docs:end:landing_installation
+
+
+.. docs:start:landing_usage
 
 Basic usage
 ===========
@@ -80,19 +90,21 @@ raised.
       the number *and* size of input rectangles.  If this becomes a problem,
       you might need to implement your own `divide-and-conquer algorithm`_.
 
+.. docs:end:landing_usage
+
 
 Examples
 ========
 
 **Example A:**
 
-.. figure:: doc/_static/img/packing_best_10.png
+.. figure:: doc/_static/img/packing_best_10.svg
    :alt: pack10
    :align: center
 
 **Example B:**
 
-.. figure:: doc/_static/img/packing_phi.png
+.. figure:: doc/_static/img/packing_phi.svg
    :alt: packphi
    :align: center
 
@@ -101,7 +113,7 @@ Examples
 very efficiently. Here's an example that demonstrates a low packing
 density:
 
-.. figure:: doc/_static/img/packing_worst_10.png
+.. figure:: doc/_static/img/packing_worst_10.svg
    :alt: pack10bad
    :align: center
 
