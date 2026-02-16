@@ -313,6 +313,10 @@ class TestPackOutput(unittest.TestCase):
                 pos = rpack.pack(sizes)
                 self.assertFalse(rpack._core.overlapping(sizes, pos))
 
+    @unittest.skipIf(
+        ctypes.sizeof(ctypes.c_long) < 8,
+        "thin-pathology fixture exceeds 32-bit C long area limits",
+    )
     def test_thin_pathology_quality(self):
         """Keep quality stable for the known thin-rectangle edge case."""
         # Lock known issue reference outputs so search-step tuning does not
