@@ -257,6 +257,19 @@ class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
 class TestPackOutput(unittest.TestCase):
     """Test/compare output of rpack.pack"""
 
+    _THIN_PATHOLOGY_BASE = [
+        (936469, 1),
+        (956023, 480880),
+        (762663, 456585),
+        (522456, 924841),
+        (193372, 365467),
+        (505745, 921750),
+        (127245, 805540),
+        (234482, 384004),
+        (986956, 278825),
+        (787627, 59839),
+    ]
+
     def test_origin(self):
         """Single rectangle should be positioned in origin"""
         sizes = [(3, 5)]
@@ -299,3 +312,24 @@ class TestPackOutput(unittest.TestCase):
                 ]
                 pos = rpack.pack(sizes)
                 self.assertFalse(rpack._core.overlapping(sizes, pos))
+
+    def test_thin_pathology_quality(self):
+        """Keep quality stable for the known thin-rectangle edge case."""
+        # Lock known issue reference outputs so search-step tuning does not
+        # silently degrade bbox quality while improving runtime.
+        expected = {
+            1: ((1155446, 2200971), 0.9212547369575843),
+            5: ((1155446, 2200975), 0.9212545356431094),
+        }
+        for h, (bbox_expected, density_expected) in expected.items():
+            with self.subTest(h=h):
+                sizes = list(self._THIN_PATHOLOGY_BASE)
+                sizes[0] = (sizes[0][0], h)
+                pos = rpack.pack(sizes)
+                self.assertFalse(rpack._core.overlapping(sizes, pos))
+                self.assertEqual(rpack.bbox_size(sizes, pos), bbox_expected)
+                self.assertAlmostEqual(
+                    rpack.packing_density(sizes, pos),
+                    density_expected,
+                    places=12,
+                )
