@@ -119,6 +119,67 @@ O(n^3).
    :alt: compute time
    :align: center
 
+Thin-Rectangle Pathology (2026-02)
+==================================
+
+A targeted benchmark campaign was run for a known edge case where one
+very thin rectangle caused severe runtime spikes. The optimization was
+validated against both:
+
+* a fixed pathology input with height sweep (``h=1,2,5,...``), and
+* a broad 2-hour spike-hunt workload (same configuration before/after).
+
+Definitions used below:
+
+* ``h``:
+  the height of the first rectangle in the fixed issue sample.
+  The rectangle is ``(936469, h)``; the other 9 rectangles are unchanged.
+* guardrail:
+  a random sanity-check baseline. In these runs:
+  ``n=10`` rectangles, side lengths sampled uniformly in ``[1, 1_000_000]``.
+* spike:
+  a sample runtime flagged as an outlier by the spike-hunt runner using
+  configured thresholds (absolute and relative). In the referenced runs:
+  ``spike_threshold_seconds=0.1`` and ``relative_spike_factor=25``.
+
+Summary (before fix vs after fix):
+
++-----------------------------------+----------------+----------------+
+| Metric                            | Before         | After          |
++===================================+================+================+
+| Pathology ``h=1`` median runtime  | ``0.4024 s``   | ``0.000486 s`` |
++-----------------------------------+----------------+----------------+
+| Slowdown vs guardrail median      | ``3941x``      | ``8.84x``      |
++-----------------------------------+----------------+----------------+
+| Spike-hunt worst sample           | ``2.9249 s``   | ``0.0549 s``   |
++-----------------------------------+----------------+----------------+
+| Spike-hunt median of top-200 slow | ``1.0587 s``   | ``0.00889 s``  |
++-----------------------------------+----------------+----------------+
+| Spike captures (2h run)           | ``183106``     | ``325``        |
++-----------------------------------+----------------+----------------+
+
+Absolute runtimes depend on machine and load. The key signal is the
+before/after ratio trends shown here.
+
+Pathology runtime as thin-rectangle height changes:
+
+The old implementation (blue) slows down heavily when ``h`` is small.
+The fixed implementation (orange) stays in a much lower and flatter range.
+
+.. figure:: _static/img/thin_pathology_h_sweep.svg
+   :alt: thin pathology h sweep
+   :align: center
+
+Tail metrics from apples-to-apples spike-hunt runs (2h, 32 workers):
+
+This chart summarizes tail behavior in plain numbers: worst runtime,
+median of the top 200 slowest samples, and spike rate. Lower is better
+for all three bars.
+
+.. figure:: _static/img/thin_pathology_spike_tail.svg
+   :alt: thin pathology spike tail metrics
+   :align: center
+
 
 .. _`Optimal Rectangle Packing: Initial Results`: https://www.aaai.org/Papers/ICAPS/2003/ICAPS03-029.pdf
 .. _`Optimal Rectangle Packing: An Absolute Placement Approach`: https://arxiv.org/pdf/1402.0557.pdf

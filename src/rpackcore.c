@@ -21,6 +21,43 @@ $ indent -kr --no-tabs rpackcore.c
 
 Cell _cell;
 Cell *const COL_FULL = &_cell;
+/* Coarse-search defaults tuned from thin-rectangle pathology benchmarks.
+   The small-delta triggers cut long height scans; local refinement keeps
+   the final bbox close to the best dense region. */
+#define COARSE_TRIGGER 16ULL
+#define COARSE_STEP_MAX 2048L
+#define REFINE_RADIUS_MAX 512L
+#define COARSE_LOW_DELTA_CEILING 3L
+#define COARSE_LOW_DELTA_MIN_HEIGHT 4096L
+#define COARSE_MEDIUM_DELTA_CEILING 64L
+#define COARSE_HIGH_DELTA_CEILING 256L
+#define COARSE_MEDIUM_TRIGGER_MULTIPLIER 8ULL
+#define COARSE_HIGH_TRIGGER_MULTIPLIER 32ULL
+
+static unsigned long long
+coarse_trigger_for_delta(unsigned long long base_trigger, long delta)
+{
+    unsigned long long multiplier = 0;
+
+    if (delta <= 0) {
+        return 0;
+    }
+    if (delta <= COARSE_LOW_DELTA_CEILING) {
+        return base_trigger;
+    }
+    if (delta <= COARSE_MEDIUM_DELTA_CEILING) {
+        multiplier = COARSE_MEDIUM_TRIGGER_MULTIPLIER;
+    } else if (delta <= COARSE_HIGH_DELTA_CEILING) {
+        multiplier = COARSE_HIGH_TRIGGER_MULTIPLIER;
+    } else {
+        return 0;
+    }
+
+    if (base_trigger > ULLONG_MAX / multiplier) {
+        return ULLONG_MAX;
+    }
+    return base_trigger * multiplier;
+}
 
 /* start_pos computes the starting position of a Cell by returning the
    end position of the previous cell. */
@@ -469,16 +506,121 @@ int grid_find_region(Grid * grid, Rectangle * rectangle, Region * reg)
     return delta;
 }
 
+static int
+grid_try_pack(Grid * grid, Rectangle * sizes, long delta_init, long *delta_out,
+              long *grid_w_out)
+{
+    size_t i = 0;
+    long delta = delta_init;
+    long d = 0;
+    long grid_w = 0;
+    Region reg;
+
+    grid_clear(grid);
+    reg.col_cell = NULL;
+    for (i = 0; i < grid->size - 1; i++) {
+        d = grid_find_region(grid, &sizes[i], &reg);
+        if (d < delta) {
+            delta = d;
+        }
+        /* Break if failure */
+        if (reg.col_cell == NULL) {
+            break;
+        }
+        /* Keep track of current grid width */
+        if (grid_w < reg.col_end_pos) {
+            grid_w = reg.col_end_pos;
+        }
+        assert(grid_w <= grid->width);
+        if (grid_split(grid, &reg) != 0) {
+            reg.col_cell = NULL;
+            break;
+        }
+    }
+
+    if (delta_out != NULL) {
+        *delta_out = delta;
+    }
+    if (grid_w_out != NULL) {
+        *grid_w_out = grid_w;
+    }
+    return reg.col_cell != NULL;
+}
+
+static void
+grid_refine_neighborhood(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr,
+                         long *best_area, long *best_h, long *best_w,
+                         long radius)
+{
+    long h_start, h_stop, h, width_limit, candidate_area;
+    long delta_unused = 0, grid_w = 0;
+    int success = 0;
+
+    if (radius <= 0) {
+        return;
+    }
+    h_start = *best_h - radius;
+    if (h_start < bbr->min_height) {
+        h_start = bbr->min_height;
+    }
+    /* Use subtraction-based clamping to avoid signed overflow when
+       `best_h` is very large. */
+    if (*best_h >= bbr->max_height) {
+        h_stop = bbr->max_height;
+    } else if (radius > bbr->max_height - *best_h) {
+        h_stop = bbr->max_height;
+    } else {
+        h_stop = *best_h + radius;
+    }
+
+    for (h = h_start; h <= h_stop; h++) {
+        if (h <= 0) {
+            continue;
+        }
+        width_limit = (*best_area) / h;
+        if (width_limit > bbr->max_width) {
+            width_limit = bbr->max_width;
+        }
+        if (width_limit < bbr->min_width) {
+            continue;
+        }
+        if (width_limit * h >= *best_area) {
+            width_limit -= 1;
+            if (width_limit < bbr->min_width) {
+                continue;
+            }
+        }
+
+        grid->height = h;
+        grid->width = width_limit;
+        success =
+            grid_try_pack(grid, sizes, bbr->max_height, &delta_unused, &grid_w);
+        if (!success) {
+            continue;
+        }
+        candidate_area = h * grid_w;
+        if (candidate_area < *best_area) {
+            *best_area = candidate_area;
+            *best_h = h;
+            *best_w = grid_w;
+        }
+    }
+}
+
 /* grid_search_bbox will search for a bbox with smallest area that can
    contain all the rectangles, `sizes`, in the `grid`. The bounding
    box must also satisfy the bounding box restrictions `bbr`. */
 long
 grid_search_bbox(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr)
 {
-    size_t i = 0;
     long happy_area = 1;        /* Todo */
-    long start_width, start_area, area, best_h, best_w, delta, d, grid_w;
-    Region reg;
+    long start_width, start_area, area, best_h, best_w, delta, grid_w;
+    long effective_delta, max_effective_delta;
+    unsigned long long stall_streak;
+    unsigned long long stall_trigger = 0;
+    long coarse_step;
+    int success, improved, used_coarse_steps;
+    long refine_radius = 0;
 
     grid->height = bbr->min_height;
     grid->width = bbr->max_area / grid->height;
@@ -490,38 +632,23 @@ grid_search_bbox(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr)
     start_area = area = bbr->max_area - 1;
     best_w = grid->width;
     best_h = grid->height;
+    stall_streak = 0;
+    coarse_step = 1;
+    max_effective_delta = 1;
+    used_coarse_steps = 0;
 
     while (grid->height <= bbr->max_height
            && bbr->min_width <= grid->width) {
-        grid_clear(grid);
         delta = bbr->max_height;
-        grid_w = 0;
-        /* Find position for all rectangles */
-        for (i = 0; i < grid->size - 1; i++) {
-            d = grid_find_region(grid, &sizes[i], &reg);
-            if (d < delta) {
-                delta = d;
-            }
-            /* Break if failure */
-            if (reg.col_cell == NULL) {
-                break;
-            }
-            /* Keep track of current grid width */
-            if (grid_w < reg.col_end_pos) {
-                grid_w = reg.col_end_pos;
-            }
-            assert(grid_w <= grid->width);
-            if (grid_split(grid, &reg) != 0) {
-                reg.col_cell = NULL;
-                break;
-            }
-        }
+        success = grid_try_pack(grid, sizes, delta, &delta, &grid_w);
+        improved = 0;
         /* All rectangles successfully packed? Update area. */
-        if (reg.col_cell != NULL) {
+        if (success) {
             best_h = grid->height;
             best_w = grid_w;
             assert(best_h * best_w < area);
             area = best_h * best_w;
+            improved = 1;
             assert(area <= bbr->max_area);
             if (area <= happy_area) {
                 /* We have found a solution the caller is happy
@@ -530,14 +657,56 @@ grid_search_bbox(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr)
             }
         }
 
+        effective_delta = delta;
+        if (effective_delta < 1) {
+            effective_delta = 1;
+        }
+
+        stall_trigger = 0;
+        if (!improved && grid->height >= COARSE_LOW_DELTA_MIN_HEIGHT) {
+            stall_trigger = coarse_trigger_for_delta(COARSE_TRIGGER, delta);
+        }
+
+        if (stall_trigger > 0) {
+            stall_streak++;
+            if (stall_streak >= stall_trigger) {
+                if (coarse_step < COARSE_STEP_MAX) {
+                    coarse_step *= 2;
+                    if (coarse_step > COARSE_STEP_MAX) {
+                        coarse_step = COARSE_STEP_MAX;
+                    }
+                }
+                if (effective_delta < coarse_step) {
+                    effective_delta = coarse_step;
+                    used_coarse_steps = 1;
+                }
+            }
+        } else {
+            stall_streak = 0;
+            coarse_step = 1;
+        }
+
+        if (effective_delta > max_effective_delta) {
+            max_effective_delta = effective_delta;
+        }
+        if (grid->height >= bbr->max_height) {
+            break;
+        }
+        if (effective_delta > bbr->max_height - grid->height) {
+            effective_delta = bbr->max_height - grid->height;
+            if (effective_delta <= 0) {
+                break;
+            }
+        }
+
         /* Inc height */
-        grid->height += delta;
+        grid->height += effective_delta;
 
         /* Dec width limit */
         grid->width = area / grid->height;
-	if (grid->width > bbr->max_width) {
-	    grid->width = bbr->max_width;
-	}
+        if (grid->width > bbr->max_width) {
+            grid->width = bbr->max_width;
+        }
         if (grid->width * grid->height == area) {
             grid->width -= 1;
         }
@@ -552,6 +721,14 @@ grid_search_bbox(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr)
         grid->width = start_width;
         grid->height = bbr->min_height;
         return -1;
+    }
+    if (used_coarse_steps) {
+        refine_radius = max_effective_delta;
+        if (refine_radius > REFINE_RADIUS_MAX) {
+            refine_radius = REFINE_RADIUS_MAX;
+        }
+        grid_refine_neighborhood(grid, sizes, bbr, &area, &best_h, &best_w,
+                                 refine_radius);
     }
     /* Success */
   done:grid->width = best_w;

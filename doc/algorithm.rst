@@ -29,5 +29,28 @@ these cells are created.
    :alt: compute time
    :align: center
 
+Search-Step Acceleration
+------------------------
+
+Candidate search is mainly controlled by a vertical step value named
+``delta`` (the amount of height increase before trying the next bbox
+candidate).
+
+For very thin-rectangle edge cases, ``delta`` can stay very small for a
+long time. That leads to too many almost-identical candidates and large
+runtime spikes.
+
+To reduce this, the search now has two phases:
+
+1. Coarse phase:
+   after repeated non-improving low-``delta`` steps (no successful area
+   reduction), the algorithm jumps in larger height increments.
+2. Local refine phase:
+   if coarse jumps were used, the algorithm does a bounded local sweep
+   around the best coarse candidate before returning.
+
+In simpler terms: it skips faster through obviously bad regions, then
+checks nearby candidates before finalizing the result.
+
 The algorithm is not documented any further yet; until it is, study
 ``src/rpackcore.c`` and ``rpack/_core.pyx`` for more details.

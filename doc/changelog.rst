@@ -2,6 +2,17 @@
 Changelog
 =========
 
+Unreleased
+==========
+
+**Changed:**
+
+* Improved ``rpack.pack()`` search behavior for thin-rectangle pathological
+  inputs by adding staged coarse candidate stepping with bounded local
+  refinement.
+* Documented the thin-rectangle performance benchmark results in the
+  documentation.
+
 Version 2.0.6 (2026-02-14)
 ==========================
 
