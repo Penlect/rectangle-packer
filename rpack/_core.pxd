@@ -37,6 +37,6 @@ cdef extern from "rpackcore.h":
         CGrid *grid_alloc(size_t size, long width, long height) nogil
         void grid_free(CGrid *grid) nogil
         void grid_clear(CGrid *self) nogil
-        int grid_find_region(CGrid *grid, Rectangle *rectangle, Region *reg) nogil
+        long grid_find_region(CGrid *grid, Rectangle *rectangle, Region *reg) nogil
         int grid_split(CGrid *self, Region *reg) nogil
         long grid_search_bbox(CGrid *grid, Rectangle *sizes, BBoxRestrictions *bbr) nogil
