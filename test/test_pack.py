@@ -3,6 +3,8 @@
 # Built-in
 import ctypes
 import random
+import subprocess
+import sys
 import unittest
 
 # Local
@@ -337,3 +339,23 @@ class TestPackOutput(unittest.TestCase):
                     density_expected,
                     places=12,
                 )
+
+    @unittest.skipIf(
+        ctypes.sizeof(ctypes.c_long) < 8,
+        "regression only applies when C long is wider than 32-bit int",
+    )
+    def test_pack_does_not_stall_above_32bit_int_height(self):
+        """Large heights above 2^31 should not trigger comparator overflow stalls."""
+        script = (
+            "import rpack\n"
+            "pos = rpack.pack([(1, 2147483648)] * 2)\n"
+            "print(pos)\n"
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True,
+            text=True,
+            timeout=3.0,
+            check=True,
+        )
+        self.assertIn("[(0, 0), (1, 0)]", completed.stdout.strip())

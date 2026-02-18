@@ -47,7 +47,7 @@ cdef int rectangle_index_cmp(const void *a, const void *b) noexcept nogil:
 
 
 cdef int rectangle_width_cmp(const void *a, const void *b) noexcept nogil:
-    cdef int width_a, width_b
+    cdef long width_a, width_b
     width_a = (<Rectangle*>a)[0].width
     width_b = (<Rectangle*>b)[0].width
     if width_a < width_b:
@@ -59,7 +59,7 @@ cdef int rectangle_width_cmp(const void *a, const void *b) noexcept nogil:
 
 
 cdef int rectangle_height_cmp(const void *a, const void *b) noexcept nogil:
-    cdef int height_a, height_b
+    cdef long height_a, height_b
     height_a = (<Rectangle*>a)[0].height
     height_b = (<Rectangle*>b)[0].height
     if height_a < height_b:

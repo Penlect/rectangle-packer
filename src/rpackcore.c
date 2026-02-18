@@ -391,7 +391,7 @@ int grid_split(Grid * self, Region * reg)
 
 /* grid_find_region searches the grid for a free space that can
    contain the region `reg`. */
-int grid_find_region(Grid * grid, Rectangle * rectangle, Region * reg)
+long grid_find_region(Grid * grid, Rectangle * rectangle, Region * reg)
 {
     long rec_col_end_pos, rec_row_end_pos;
     long delta = rectangle->height;
