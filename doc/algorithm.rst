@@ -64,6 +64,43 @@ width, and total height. These are used to derive hard lower/upper
 bounds for legal bounding boxes.
 
 
+Bigint fallback path
+--------------------
+
+The C core stores geometry in C ``long``. When an input or intermediate
+value does not fit that range, the Python wrapper retries via a bigint
+fallback pipeline.
+
+The fallback has two stages:
+
+1. exact reduction:
+   divide widths and heights by axis-wise ``gcd`` when possible. This
+   preserves exact geometry and can often bring values back into C-long
+   range.
+2. conservative approximation:
+   if values still do not fit, apply power-of-two scaling where sizes
+   are rounded up (ceiling) and explicit bounds are rounded down
+   (floor).
+
+After packing the reduced/scaled instance, positions are rescaled back
+to original units and explicit bounds are checked again.
+
+Guarantees and trade-offs:
+
+* no false positives:
+  returned packings are overlap-safe when mapped back to original units.
+* accepted false negatives:
+  the conservative scaling can reject feasible instances by raising
+  ``PackingImpossibleError``.
+* this can also happen with bounds that are mathematically non-binding
+  in original units (for example ``max_width >= sum(widths)``), because
+  quantization can introduce small gaps before final bound revalidation.
+
+This behavior is intentional in the current design: correctness and
+overflow safety are prioritized over completeness for extreme bigint
+inputs.
+
+
 Strategy sweep (ordering and global transpose)
 ----------------------------------------------
 

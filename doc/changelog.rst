@@ -12,6 +12,16 @@ Unreleased
   refinement.
 * Documented the thin-rectangle performance benchmark results in the
   documentation.
+* ``rpack.pack()`` now retries overflowing inputs via bigint preprocessing:
+  exact axis-wise ``gcd`` normalization first, then conservative power-of-two
+  scaling when needed so very large Python integers can still be packed.
+  The conservative fallback can still return false negatives
+  (``PackingImpossibleError`` for feasible inputs), including some cases where
+  explicit bounds are mathematically non-binding, due to quantization and final
+  bound revalidation.
+* Public helpers ``rpack.bbox_size()``, ``rpack.overlapping()`` and
+  ``rpack.packing_density()`` now transparently handle bigint packings by
+  falling back to Python integer arithmetic when C ``long`` conversion overflows.
 
 Version 2.0.6 (2026-02-14)
 ==========================
