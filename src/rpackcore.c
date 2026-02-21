@@ -59,6 +59,18 @@ coarse_trigger_for_delta(unsigned long long base_trigger, long delta)
     return base_trigger * multiplier;
 }
 
+static int
+long_add_overflows(long a, long b)
+{
+    if (b > 0 && a > LONG_MAX - b) {
+        return 1;
+    }
+    if (b < 0 && a < LONG_MIN - b) {
+        return 1;
+    }
+    return 0;
+}
+
 /* start_pos computes the starting position of a Cell by returning the
    end position of the previous cell. */
 long start_pos(Cell * self)
@@ -442,6 +454,13 @@ long grid_find_region(Grid * grid, Rectangle * rectangle, Region * reg)
             /* Normal jump */
             if (jump_target != NULL) {
                 row_cell = row_cell_start = jump_target;
+                if (long_add_overflows(row_cell->prev->end_pos,
+                                       rectangle->height)) {
+                    /* Later rows in this column only start higher, so an
+                       overflow here means this column cannot fit the
+                       rectangle in C-long coordinates. */
+                    break;
+                }
                 rec_row_end_pos =
                     row_cell->prev->end_pos + rectangle->height;
                 continue;
@@ -493,6 +512,9 @@ long grid_find_region(Grid * grid, Rectangle * rectangle, Region * reg)
         }
 
         /* Prepare new iteration */
+        if (long_add_overflows(col_cell_start->end_pos, rectangle->width)) {
+            break;
+        }
         rec_col_end_pos = col_cell_start->end_pos + rectangle->width;
         col_cell_start = col_cell_start->next;
 
@@ -646,6 +668,8 @@ grid_search_bbox(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr)
         if (success) {
             best_h = grid->height;
             best_w = grid_w;
+            /* bounded by construction: grid->width = area / grid->height and
+               grid_w <= grid->width, so best_h * best_w <= area <= LONG_MAX */
             assert(best_h * best_w < area);
             area = best_h * best_w;
             improved = 1;

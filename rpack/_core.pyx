@@ -8,7 +8,8 @@ from typing import Tuple
 # Cython
 import cython
 from libc.stdlib cimport malloc, free, qsort
-from libc.limits cimport LONG_MAX
+from libc.limits cimport LONG_MAX, LONG_MIN
+from libc.stdint cimport SIZE_MAX
 from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 
@@ -86,6 +87,14 @@ cdef inline bint positive_area_overflows_long(long width, long height) noexcept 
     return width > 0 and height > 0 and width > LONG_MAX // height
 
 
+cdef inline bint long_add_overflows(long a, long b) noexcept nogil:
+    if b > 0 and a > LONG_MAX - b:
+        return True
+    if b < 0 and a < LONG_MIN - b:
+        return True
+    return False
+
+
 cdef inline long safe_bbox_area(long width, long height) noexcept nogil:
     if width <= 0 or height <= 0:
         return -1
@@ -118,16 +127,18 @@ cdef class RectangleSet:
             long w, h, rect_area
 
         if len(sizes) == 0:
-            raise ValueError('Empty sizes')
+            raise ValueError("sizes must not be empty")
         self.length = len(sizes)
         self.min_height = LONG_MAX
         self.min_width = LONG_MAX
 
         # Prepare input
         self.rectangles = NULL
+        if self.length > SIZE_MAX // sizeof(Rectangle):
+            raise MemoryError("RectangleSet allocation size overflow")
         self.rectangles = <Rectangle *> PyMem_Malloc(<size_t>self.length * sizeof(Rectangle))
         if not self.rectangles:
-            raise MemoryError('Rectangles')
+            raise MemoryError("Failed to allocate rectangle buffer")
         i = 0
         for width, height in sizes:
             if not isinstance(width, int):
@@ -141,6 +152,10 @@ cdef class RectangleSet:
             elif h <= 0:
                 raise ValueError("Rectangle height must be positive integer")
 
+            if self.sum_width > LONG_MAX - w:
+                raise OverflowError("Total rectangle width too large")
+            if self.sum_height > LONG_MAX - h:
+                raise OverflowError("Total rectangle height too large")
             self.sum_width += w
             self.sum_height += h
 
@@ -197,17 +212,23 @@ cdef class RectangleSet:
 
     cdef bbox_size(self):
         cdef:
-            long max_width = 0, max_height = 0
+            long max_width = 0, max_height = 0, width_end, height_end
             Rectangle *r
             size_t i
         for i in range(self.length):
             r = &self.rectangles[i]
             if r.x == NO_POSITION or r.y == NO_POSITION:
                 break
-            if r.width + r.x > max_width:
-                max_width = r.width + r.x
-            if r.height + r.y > max_height:
-                max_height = r.height + r.y
+            if long_add_overflows(r.width, r.x):
+                raise OverflowError("Rectangle x + width overflows C long")
+            if long_add_overflows(r.height, r.y):
+                raise OverflowError("Rectangle y + height overflows C long")
+            width_end = r.width + r.x
+            height_end = r.height + r.y
+            if width_end > max_width:
+                max_width = width_end
+            if height_end > max_height:
+                max_height = height_end
         return max_width, max_height
 
     cdef void rotate_all(self) nogil:
@@ -239,6 +260,11 @@ cdef class RectangleSet:
         cdef Rectangle *r
         for i in range(self.length):
             r = &self.rectangles[i]
+            if long_add_overflows(r.x, x) or long_add_overflows(r.y, y):
+                with gil:
+                    raise OverflowError(
+                        f"Rectangle translation overflows C long (dx={x}, dy={y})"
+                    )
             r.x += x
             r.y += y
 
@@ -259,7 +285,7 @@ cdef class Grid:
     def __cinit__(self, size_t size, long width=0, long height=0):
         self.cgrid = grid_alloc(size, width, height)
         if not self.cgrid:
-            raise MemoryError('Grid')
+            raise MemoryError("Failed to allocate grid")
 
     def __dealloc__(self):
         if self.cgrid != NULL:
@@ -270,7 +296,12 @@ cdef class Grid:
         cdef long status
         if self.cgrid.size + 1 < rset.length:
             raise PackingImpossibleError(
-                "Too many rectangles for allocated grid size.", [])
+                (
+                    "Too many rectangles for allocated grid size "
+                    f"(grid={self.cgrid.size}, rectangles={rset.length})"
+                ),
+                [],
+            )
         assert bbr.min_width == rset.max_width
         assert bbr.min_height == rset.max_height
         with nogil:
@@ -285,7 +316,12 @@ cdef class Grid:
         cdef Region reg
         if self.cgrid.size + 1 < rset.length:
             raise PackingImpossibleError(
-                "Too many rectangles for allocated grid size.", [])
+                (
+                    "Too many rectangles for allocated grid size "
+                    f"(grid={self.cgrid.size}, rectangles={rset.length})"
+                ),
+                [],
+            )
         with nogil:
             self.cgrid.width = width
             self.cgrid.height = height
@@ -457,14 +493,20 @@ def bbox_size(sizes, positions) -> Tuple[int, int]:
              having `sizes` and `positions`.
     :rtype: Tuple[int, int]
     """
-    cdef long max_width = 0, max_height = 0, w, h, x, y
+    cdef long max_width = 0, max_height = 0, w, h, x, y, width_end, height_end
     for i in range(len(sizes)):
         w, h = sizes[i]
         x, y = positions[i]
-        if w + x > max_width:
-            max_width = w + x
-        if h + y > max_height:
-            max_height = h + y
+        if long_add_overflows(w, x):
+            raise OverflowError("Rectangle x + width overflows C long")
+        if long_add_overflows(h, y):
+            raise OverflowError("Rectangle y + height overflows C long")
+        width_end = w + x
+        height_end = h + y
+        if width_end > max_width:
+            max_width = width_end
+        if height_end > max_height:
+            max_height = height_end
     return max_width, max_height
 
 
@@ -530,20 +572,32 @@ def overlapping(sizes, positions):
     :rtype: Union[None, Tuple[int, int]]
     """
     cdef:
-        long w1, h1, x1, y1
-        long w2, h2, x2, y2
+        long w1, h1, x1, y1, x1_end, y1_end
+        long w2, h2, x2, y2, x2_end, y2_end
         bint disjoint_in_x, disjoint_in_y
         Py_ssize_t n = len(sizes)
     for i in range(n):
         w1, h1 = sizes[i]
         x1, y1 = positions[i]
+        if long_add_overflows(x1, w1):
+            raise OverflowError("Rectangle x + width overflows C long")
+        if long_add_overflows(y1, h1):
+            raise OverflowError("Rectangle y + height overflows C long")
+        x1_end = x1 + w1
+        y1_end = y1 + h1
         for j in range(n):
             if j == i:
                 continue
             w2, h2 = sizes[j]
             x2, y2 = positions[j]
-            disjoint_in_x = (x1 + w1 <= x2 or x2 + w2 <= x1)
-            disjoint_in_y = (y1 + h1 <= y2 or y2 + h2 <= y1)
+            if long_add_overflows(x2, w2):
+                raise OverflowError("Rectangle x + width overflows C long")
+            if long_add_overflows(y2, h2):
+                raise OverflowError("Rectangle y + height overflows C long")
+            x2_end = x2 + w2
+            y2_end = y2 + h2
+            disjoint_in_x = (x1_end <= x2 or x2_end <= x1)
+            disjoint_in_y = (y1_end <= y2 or y2_end <= y1)
             if not (disjoint_in_x or disjoint_in_y):
                 return (i, j)
     return None

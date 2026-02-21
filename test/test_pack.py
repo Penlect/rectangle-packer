@@ -12,6 +12,30 @@ import rpack
 import rpack._core
 
 
+def _bbox_size_py(sizes, positions):
+    width = 0
+    height = 0
+    for (rect_w, rect_h), (x, y) in zip(sizes, positions):
+        width = max(width, x + rect_w)
+        height = max(height, y + rect_h)
+    return width, height
+
+
+def _overlapping_py(sizes, positions):
+    n = len(sizes)
+    for i in range(n):
+        w1, h1 = sizes[i]
+        x1, y1 = positions[i]
+        for j in range(i + 1, n):
+            w2, h2 = sizes[j]
+            x2, y2 = positions[j]
+            disjoint_in_x = x1 + w1 <= x2 or x2 + w2 <= x1
+            disjoint_in_y = y1 + h1 <= y2 or y2 + h2 <= y1
+            if not (disjoint_in_x or disjoint_in_y):
+                return (i, j)
+    return None
+
+
 # TEST CORE UTILS
 # ===============
 
@@ -20,6 +44,38 @@ class TestPackingDensity(unittest.TestCase):
     def test_max_density(self):
         p = rpack._core.packing_density([(10, 10)], [(0, 0)])
         self.assertEqual(p, 1)
+
+    def test_bigint_density_helper(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        sizes = [(long_max + 1, 1)]
+        pos = [(0, 0)]
+        self.assertEqual(rpack.packing_density(sizes, pos), 1.0)
+
+    def test_bigint_density_helper_rejects_non_integer_inputs(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        with self.assertRaises(TypeError):
+            rpack.packing_density([(long_max + 1, 1.2)], [(0, 0)])
+        with self.assertRaises(TypeError):
+            rpack.packing_density([(long_max + 1, 1)], [(0.0, 0)])
+
+    def test_bigint_density_helper_guards_sum_wraparound(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        width = (long_max // 2) + 2
+        sizes = [(width, 1), (width, 1)]
+        positions = [(0, 0), (width, 0)]
+        self.assertEqual(rpack.packing_density(sizes, positions), 1.0)
+
+    def test_core_packing_density_raises_on_sum_wraparound(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        width = (long_max // 2) + 2
+        sizes = [(width, 1), (width, 1)]
+        positions = [(0, 0), (width, 0)]
+        with self.assertRaises(OverflowError):
+            rpack._core.packing_density(sizes, positions)
 
 
 class TestOverlapping(unittest.TestCase):
@@ -35,6 +91,28 @@ class TestOverlapping(unittest.TestCase):
         index = rpack._core.overlapping(sizes, pos)
         self.assertFalse(index)
 
+    def test_bigint_overlapping_helper(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        sizes = [(long_max + 1, 1), (2, 2)]
+        pos = [(0, 0), (long_max, 0)]
+        self.assertEqual(rpack.overlapping(sizes, pos), (0, 1))
+
+    def test_bigint_overlapping_helper_rejects_non_integer_inputs(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        with self.assertRaises(TypeError):
+            rpack.overlapping([(long_max + 1, 1.2)], [(0, 0)])
+        with self.assertRaises(TypeError):
+            rpack.overlapping([(long_max + 1, 1)], [(0, 0.0)])
+
+    def test_core_overlapping_raises_on_sum_wraparound(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        width = (long_max // 2) + 2
+        with self.assertRaises(OverflowError):
+            rpack._core.overlapping([(width, 1)], [(width, 0)])
+
 
 class TestBboxSize(unittest.TestCase):
     def test_enclosing_size(self):
@@ -44,6 +122,48 @@ class TestBboxSize(unittest.TestCase):
         width, height = rpack.enclosing_size(sizes, pos)
         self.assertEqual(width, 4)
         self.assertEqual(height, 6)
+
+    def test_enclosing_size_bigint_helper(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        sizes = [(long_max + 1, 1), (2, 3)]
+        pos = [(long_max + 5, 0), (0, 0)]
+        width, height = rpack.enclosing_size(sizes, pos)
+        self.assertEqual(width, 2 * long_max + 6)
+        self.assertEqual(height, 3)
+
+    def test_enclosing_size_bigint_helper_rejects_non_integer_inputs(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        with self.assertRaises(TypeError):
+            rpack.enclosing_size([(long_max + 1, 1.2)], [(0, 0)])
+        with self.assertRaises(TypeError):
+            rpack.enclosing_size([(long_max + 1, 1)], [(0, 0.0)])
+
+    def test_enclosing_size_bigint_helper_rejects_mismatched_lengths(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        sizes = [(long_max + 1, 1), (2, 3)]
+        positions = [(0, 0)]
+        with self.assertRaises(IndexError):
+            rpack.enclosing_size(sizes, positions)
+
+    def test_enclosing_size_bigint_helper_guards_sum_wraparound(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        width = (long_max // 2) + 2
+        sizes = [(width, 1), (width, 1)]
+        positions = [(0, 0), (width, 0)]
+        self.assertEqual(rpack.enclosing_size(sizes, positions), (2 * width, 1))
+
+    def test_core_bbox_size_raises_on_sum_wraparound(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        width = (long_max // 2) + 2
+        sizes = [(width, 1), (width, 1)]
+        positions = [(0, 0), (width, 0)]
+        with self.assertRaises(OverflowError):
+            rpack._core.bbox_size(sizes, positions)
 
 
 # TEST INPUT
@@ -95,15 +215,204 @@ class TestPackInput(unittest.TestCase):
         with self.assertRaises(TypeError):
             rpack.pack([[1.99, 1.99]])
 
-    def test_area_overflow(self):
+    def test_area_overflow_fallback(self):
         too_wide = self._LONG_MAX // 2 + 1
-        with self.assertRaisesRegex(OverflowError, "area"):
-            rpack.pack([(too_wide, 2)])
+        self.assertEqual(rpack.pack([(too_wide, 2)]), [(0, 0)])
 
-    def test_total_area_overflow(self):
+    def test_total_area_overflow_fallback(self):
         side = self._LONG_MAX // 2 + 1
-        with self.assertRaisesRegex(OverflowError, "area"):
-            rpack.pack([(side, 1), (side, 1)])
+        sizes = [(side, 1), (side, 1)]
+        pos = rpack.pack(sizes)
+        self.assertEqual(len(pos), 2)
+        self.assertIsNone(_overlapping_py(sizes, pos))
+
+    def test_side_larger_than_c_long_fallback(self):
+        too_wide = self._LONG_MAX + 1
+        self.assertEqual(rpack.pack([(too_wide, 1)]), [(0, 0)])
+
+    def test_large_side_with_constraints_fallback(self):
+        side = self._LONG_MAX + 1
+        sizes = [(side, 1), (side, 1)]
+        max_width = side * 2
+        max_height = 1
+        pos = rpack.pack(sizes, max_width=max_width, max_height=max_height)
+        width, height = _bbox_size_py(sizes, pos)
+        self.assertLessEqual(width, max_width)
+        self.assertLessEqual(height, max_height)
+        self.assertIsNone(_overlapping_py(sizes, pos))
+
+    def test_approximation_never_violates_explicit_max_width(self):
+        sizes = [(self._LONG_MAX // 2, 1), (self._LONG_MAX // 2 + 2, 1)]
+        max_width = sum(width for width, _ in sizes)
+        try:
+            pos = rpack.pack(sizes, max_width=max_width, max_height=1)
+        except rpack.PackingImpossibleError:
+            return
+        width, height = _bbox_size_py(sizes, pos)
+        self.assertLessEqual(width, max_width)
+        self.assertLessEqual(height, 1)
+        self.assertIsNone(_overlapping_py(sizes, pos))
+
+    def test_approximation_never_violates_explicit_max_height(self):
+        sizes = [(1, self._LONG_MAX // 2), (1, self._LONG_MAX // 2 + 2)]
+        max_height = sum(height for _, height in sizes)
+        try:
+            pos = rpack.pack(sizes, max_width=1, max_height=max_height)
+        except rpack.PackingImpossibleError:
+            return
+        width, height = _bbox_size_py(sizes, pos)
+        self.assertLessEqual(width, 1)
+        self.assertLessEqual(height, max_height)
+        self.assertIsNone(_overlapping_py(sizes, pos))
+
+    def test_bigint_fallback_remaps_zero_bound_artifact(self):
+        sizes = [
+            (1, self._LONG_MAX + 1),
+            (1, self._LONG_MAX + 2),
+        ]
+        with self.assertRaises(rpack.PackingImpossibleError) as error:
+            rpack.pack(sizes, max_width=1)
+        self.assertEqual(
+            error.exception.args[0],
+            "max_width too small under bigint approximation",
+        )
+
+    def test_bigint_fallback_preserves_positive_bound_after_gcd_reduction(self):
+        side = self._LONG_MAX + 2
+        sizes = [(side, 1), (side, 1)]
+        with self.assertRaises(rpack.PackingImpossibleError) as error:
+            rpack.pack(sizes, max_width=1)
+        self.assertEqual(
+            error.exception.args[0],
+            "max_width too small under bigint approximation",
+        )
+
+    def test_bigint_fallback_remaps_zero_height_artifact(self):
+        sizes = [
+            (self._LONG_MAX + 1, 1),
+            (self._LONG_MAX + 2, 1),
+        ]
+        with self.assertRaises(rpack.PackingImpossibleError) as error:
+            rpack.pack(sizes, max_height=1)
+        self.assertEqual(
+            error.exception.args[0],
+            "max_height too small under bigint approximation",
+        )
+
+    def test_bigint_fallback_partial_result_uses_original_coordinates(self):
+        side = self._LONG_MAX + 1
+        sizes = [(side, 1)] * 3
+        with self.assertRaises(rpack.PackingImpossibleError) as error:
+            rpack.pack(sizes, max_width=2 * side, max_height=1)
+        self.assertEqual(error.exception.args[0], "Partial result")
+        self.assertEqual(error.exception.args[1], [(0, 0), (side, 0)])
+
+    def test_bigint_huge_bound_does_not_timeout(self):
+        script = (
+            "import rpack\n"
+            "rpack.pack([(1, 1)], max_width=1 << 200000)\n"
+            "print('ok')\n"
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True,
+            text=True,
+            timeout=3.0,
+            check=True,
+        )
+        self.assertEqual(completed.stdout.strip(), "ok")
+
+    def test_huge_nonbinding_width_with_tight_height(self):
+        script = (
+            "import rpack\n"
+            "print(rpack.pack([(1, 1)], max_width=1 << 200000, max_height=1))\n"
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True,
+            text=True,
+            timeout=3.0,
+            check=True,
+        )
+        self.assertEqual(completed.stdout.strip(), "[(0, 0)]")
+
+    def test_huge_nonbinding_height_with_tight_width(self):
+        script = (
+            "import rpack\n"
+            "print(rpack.pack([(1, 1)], max_width=1, max_height=1 << 200000))\n"
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True,
+            text=True,
+            timeout=3.0,
+            check=True,
+        )
+        self.assertEqual(completed.stdout.strip(), "[(0, 0)]")
+
+    def test_huge_negative_bounds_behave_unbounded(self):
+        script = (
+            "import rpack\n"
+            "print(rpack.pack([(1, 1)], max_width=-(1 << 200000), max_height=-(1 << 200000)))\n"
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True,
+            text=True,
+            timeout=3.0,
+            check=True,
+        )
+        self.assertEqual(completed.stdout.strip(), "[(0, 0)]")
+
+    def test_empty_with_huge_bound_returns_empty(self):
+        script = (
+            "import rpack\n"
+            "print(rpack.pack([], max_width=1 << 200000))\n"
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True,
+            text=True,
+            timeout=3.0,
+            check=True,
+        )
+        self.assertEqual(completed.stdout.strip(), "[]")
+
+    def test_nonbinding_bounds_do_not_break_fallback(self):
+        sizes = [
+            (9223372036854778009, 5),
+            (9223372036854776841, 3),
+        ]
+        max_width = sum(width for width, _ in sizes)
+        max_height = sum(height for _, height in sizes)
+        try:
+            pos = rpack.pack(sizes, max_width=max_width, max_height=max_height)
+        except rpack.PackingImpossibleError:
+            return
+        width, height = _bbox_size_py(sizes, pos)
+        self.assertLessEqual(width, max_width)
+        self.assertLessEqual(height, max_height)
+        self.assertIsNone(_overlapping_py(sizes, pos))
+
+    def test_partial_result_rescales_y_axis_with_bigint_fallback(self):
+        side = self._LONG_MAX + 1
+        sizes = [(1, side)] * 3
+        max_width = 1
+        max_height = 2 * side
+        with self.assertRaises(rpack.PackingImpossibleError) as error:
+            rpack.pack(sizes, max_width=max_width, max_height=max_height)
+        self.assertEqual(error.exception.args[0], "Partial result")
+        self.assertEqual(error.exception.args[1], [(0, 0), (0, side)])
+
+    def test_max_width_zero_message_preserved_in_fallback(self):
+        side = self._LONG_MAX + 1
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, "max_width zero"):
+            rpack.pack([(side, 1)], max_width=0)
+
+    def test_max_height_zero_message_preserved_in_fallback(self):
+        side = self._LONG_MAX + 1
+        with self.assertRaisesRegex(rpack.PackingImpossibleError, "max_height zero"):
+            rpack.pack([(1, side)], max_height=0)
 
 
 class TestPackInputBoundingBoxRestrictions(unittest.TestCase):
@@ -304,6 +613,19 @@ class TestPackOutput(unittest.TestCase):
         width, height = rpack.enclosing_size(sizes, pos)
         self.assertLessEqual(width * height, 3045)
 
+    def test_helpers_accept_bigint_pack_results(self):
+        long_bits = ctypes.sizeof(ctypes.c_long) * 8
+        long_max = (1 << (long_bits - 1)) - 1
+        sizes = [(long_max + 1, 1), (long_max + 1, 1)]
+        pos = rpack.pack(sizes)
+        self.assertEqual(rpack.bbox_size(sizes, pos), _bbox_size_py(sizes, pos))
+        self.assertIsNone(rpack.overlapping(sizes, pos))
+        bbox_width, bbox_height = rpack.bbox_size(sizes, pos)
+        expected = sum(width * height for width, height in sizes) / (
+            bbox_width * bbox_height
+        )
+        self.assertEqual(rpack.packing_density(sizes, pos), expected)
+
     def test_no_overlap(self):
         """Make sure no rectangles overlap"""
         for i in range(10, 101, 10):
@@ -359,3 +681,19 @@ class TestPackOutput(unittest.TestCase):
             check=True,
         )
         self.assertIn("[(0, 0), (1, 0)]", completed.stdout.strip())
+
+    @unittest.skipIf(
+        ctypes.sizeof(ctypes.c_long) < 8,
+        "fixture uses values above 32-bit C long to force bigint fallback",
+    )
+    def test_bigint_axis_gcd_reduction_matches_small_instance(self):
+        scale = 10**20
+        big_sizes = [
+            (3 * scale, 5 * scale),
+            (4 * scale, 2 * scale),
+            (2 * scale, 2 * scale),
+        ]
+        small_sizes = [(3, 5), (4, 2), (2, 2)]
+        small_pos = rpack.pack(small_sizes)
+        big_pos = rpack.pack(big_sizes)
+        self.assertEqual(big_pos, [(x * scale, y * scale) for x, y in small_pos])
