@@ -31,18 +31,30 @@ __url__ = "https://github.com/Penlect/rectangle-packer"
 __version__ = "2.0.6"
 
 # Built-in
-from typing import Iterable, Tuple, List
+from typing import Iterable, List, Tuple
+
+# Local modules
+from rpack._bigint_fallback import (
+    bbox_size_with_bigint_fallback as _bbox_size_with_bigint_fallback,
+)
+from rpack._bigint_fallback import (
+    overlapping_with_bigint_fallback as _overlapping_with_bigint_fallback,
+)
+from rpack._bigint_fallback import (
+    pack_with_bigint_fallback as _pack_with_bigint_fallback,
+)
+from rpack._bigint_fallback import (
+    packing_density_with_bigint_fallback as _packing_density_with_bigint_fallback,
+)
 
 # Extension modules
 from rpack._core import (
     pack as _pack,
     PackingImpossibleError,
-    bbox_size,
-    packing_density,
-    overlapping,
+    bbox_size as _core_bbox_size,
+    packing_density as _core_packing_density,
+    overlapping as _core_overlapping,
 )
-
-enclosing_size = bbox_size
 
 __all__ = [
     "pack",
@@ -52,6 +64,30 @@ __all__ = [
     "packing_density",
     "overlapping",
 ]
+
+
+def bbox_size(sizes, positions) -> Tuple[int, int]:
+    try:
+        return _core_bbox_size(sizes, positions)
+    except OverflowError:
+        return _bbox_size_with_bigint_fallback(sizes, positions)
+
+
+def packing_density(sizes, positions) -> float:
+    try:
+        return _core_packing_density(sizes, positions)
+    except OverflowError:
+        return _packing_density_with_bigint_fallback(sizes, positions)
+
+
+def overlapping(sizes, positions):
+    try:
+        return _core_overlapping(sizes, positions)
+    except OverflowError:
+        return _overlapping_with_bigint_fallback(sizes, positions)
+
+
+enclosing_size = bbox_size
 
 
 def pack(
@@ -75,6 +111,13 @@ def pack(
     time increases by the number *and* size of input rectangles.  If
     this becomes a problem, you might need to implement your own
     `divide-and-conquer algorithm`_.
+
+    Very large Python integers are supported through a fallback path:
+    first exact axis-wise ``gcd`` reduction is attempted, and if the
+    instance still does not fit C ``long`` bookkeeping, a conservative
+    power-of-two scaling approximation is used.  This approximation is
+    safe (no overlaps when scaled back) but can produce false negatives
+    under strict ``max_width``/``max_height`` constraints.
 
     **Example**::
 
@@ -118,4 +161,10 @@ def pack(
         sizes = list(sizes)
     mw = -1 if max_width is None else max_width
     mh = -1 if max_height is None else max_height
-    return _pack(sizes, mw, mh)
+    try:
+        return _pack(sizes, mw, mh)
+    except OverflowError:
+        # For instances that overflow C long bookkeeping, retry by first
+        # applying exact axis-wise gcd reduction, and then (if still needed)
+        # a conservative ceil-based power-of-two approximation.
+        return _pack_with_bigint_fallback(sizes, max_width, max_height)
