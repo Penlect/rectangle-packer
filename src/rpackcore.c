@@ -19,8 +19,8 @@ $ indent -kr --no-tabs rpackcore.c
    ====
 */
 
-Cell _cell;
-Cell *const COL_FULL = &_cell;
+static Cell col_full_sentinel;
+static Cell *const COL_FULL = &col_full_sentinel;
 /* Coarse-search defaults tuned from thin-rectangle pathology benchmarks.
    The small-delta triggers cut long height scans; local refinement keeps
    the final bbox close to the best dense region. */
@@ -73,7 +73,7 @@ long_add_overflows(long a, long b)
 
 /* start_pos computes the starting position of a Cell by returning the
    end position of the previous cell. */
-long start_pos(Cell * self)
+long start_pos(const Cell * self)
 {
     if (self == NULL) {
         return 0;
@@ -132,18 +132,23 @@ static CellLink *alloc_cell_link(size_t size, long end_pos)
 {
     CellLink *cl = NULL;
     Cell *cells = NULL;
+
+    if (size == 0) {
+        size = 1;
+    }
+    if (end_pos == 0) {
+        end_pos = 1;
+    }
+    if (size > SIZE_MAX / sizeof(*cells)) {
+        return NULL;
+    }
+
     if ((cl = malloc(sizeof(*cl))) == NULL) {
         return NULL;
     }
     if ((cells = calloc(size, sizeof(*cells))) == NULL) {
         free(cl);
         return NULL;
-    }
-    if (size == 0) {
-        size = 1;
-    }
-    if (end_pos == 0) {
-        end_pos = 1;
     }
     cl->size = size;
     cl->end_pos = end_pos;
@@ -403,7 +408,7 @@ int grid_split(Grid * self, Region * reg)
 
 /* grid_find_region searches the grid for a free space that can
    contain the region `reg`. */
-long grid_find_region(Grid * grid, Rectangle * rectangle, Region * reg)
+long grid_find_region(Grid * grid, const Rectangle * rectangle, Region * reg)
 {
     long rec_col_end_pos, rec_row_end_pos;
     long delta = rectangle->height;
@@ -529,8 +534,8 @@ long grid_find_region(Grid * grid, Rectangle * rectangle, Region * reg)
 }
 
 static int
-grid_try_pack(Grid * grid, Rectangle * sizes, long delta_init, long *delta_out,
-              long *grid_w_out)
+grid_try_pack(Grid * grid, const Rectangle * sizes, long delta_init,
+              long *delta_out, long *grid_w_out)
 {
     size_t i = 0;
     long delta = delta_init;
@@ -570,8 +575,9 @@ grid_try_pack(Grid * grid, Rectangle * sizes, long delta_init, long *delta_out,
 }
 
 static void
-grid_refine_neighborhood(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr,
-                         long *best_area, long *best_h, long *best_w,
+grid_refine_neighborhood(Grid * grid, const Rectangle * sizes,
+                         const BBoxRestrictions * bbr, long *best_area,
+                         long *best_h, long *best_w,
                          long radius)
 {
     long h_start, h_stop, h, width_limit, candidate_area;
@@ -633,7 +639,8 @@ grid_refine_neighborhood(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr,
    contain all the rectangles, `sizes`, in the `grid`. The bounding
    box must also satisfy the bounding box restrictions `bbr`. */
 long
-grid_search_bbox(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr)
+grid_search_bbox(Grid * grid, const Rectangle * sizes,
+                 const BBoxRestrictions * bbr)
 {
     long happy_area = 1;        /* Todo */
     long start_width, start_area, area, best_h, best_w, delta, grid_w;
