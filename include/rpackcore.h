@@ -13,7 +13,7 @@ struct cell {
 };
 typedef struct cell Cell;
 
-long start_pos(Cell *cell);
+long start_pos(const Cell *cell);
 
 // CellLink
 struct cell_link {
@@ -78,8 +78,9 @@ typedef struct grid Grid;
 Grid *grid_alloc(size_t size, long width, long height);
 void grid_free(Grid *grid);
 void grid_clear(Grid *self);
-long grid_find_region(Grid *grid, Rectangle *rectangle, Region *reg);
+long grid_find_region(Grid *grid, const Rectangle *rectangle, Region *reg);
 int grid_split(Grid *self, Region *reg);
-long grid_search_bbox(Grid *grid, Rectangle *sizes, BBoxRestrictions *bbr);
+long grid_search_bbox(Grid *grid, const Rectangle *sizes,
+                      const BBoxRestrictions *bbr);
 
 #endif

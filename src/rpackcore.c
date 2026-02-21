@@ -73,7 +73,7 @@ long_add_overflows(long a, long b)
 
 /* start_pos computes the starting position of a Cell by returning the
    end position of the previous cell. */
-long start_pos(Cell * self)
+long start_pos(const Cell * self)
 {
     if (self == NULL) {
         return 0;
@@ -408,7 +408,7 @@ int grid_split(Grid * self, Region * reg)
 
 /* grid_find_region searches the grid for a free space that can
    contain the region `reg`. */
-long grid_find_region(Grid * grid, Rectangle * rectangle, Region * reg)
+long grid_find_region(Grid * grid, const Rectangle * rectangle, Region * reg)
 {
     long rec_col_end_pos, rec_row_end_pos;
     long delta = rectangle->height;
@@ -534,8 +534,8 @@ long grid_find_region(Grid * grid, Rectangle * rectangle, Region * reg)
 }
 
 static int
-grid_try_pack(Grid * grid, Rectangle * sizes, long delta_init, long *delta_out,
-              long *grid_w_out)
+grid_try_pack(Grid * grid, const Rectangle * sizes, long delta_init,
+              long *delta_out, long *grid_w_out)
 {
     size_t i = 0;
     long delta = delta_init;
@@ -575,8 +575,9 @@ grid_try_pack(Grid * grid, Rectangle * sizes, long delta_init, long *delta_out,
 }
 
 static void
-grid_refine_neighborhood(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr,
-                         long *best_area, long *best_h, long *best_w,
+grid_refine_neighborhood(Grid * grid, const Rectangle * sizes,
+                         const BBoxRestrictions * bbr, long *best_area,
+                         long *best_h, long *best_w,
                          long radius)
 {
     long h_start, h_stop, h, width_limit, candidate_area;
@@ -638,7 +639,8 @@ grid_refine_neighborhood(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr,
    contain all the rectangles, `sizes`, in the `grid`. The bounding
    box must also satisfy the bounding box restrictions `bbr`. */
 long
-grid_search_bbox(Grid * grid, Rectangle * sizes, BBoxRestrictions * bbr)
+grid_search_bbox(Grid * grid, const Rectangle * sizes,
+                 const BBoxRestrictions * bbr)
 {
     long happy_area = 1;        /* Todo */
     long start_width, start_area, area, best_h, best_w, delta, grid_w;

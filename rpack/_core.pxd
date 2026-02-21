@@ -14,7 +14,7 @@ cdef extern from "rpackcore.h":
 
     ctypedef struct Cell
 
-    cdef long start_pos(Cell *cell) nogil
+    cdef long start_pos(const Cell *cell) nogil
 
     ctypedef struct Region:
         Cell *row_cell_start
@@ -37,6 +37,7 @@ cdef extern from "rpackcore.h":
         CGrid *grid_alloc(size_t size, long width, long height) nogil
         void grid_free(CGrid *grid) nogil
         void grid_clear(CGrid *self) nogil
-        long grid_find_region(CGrid *grid, Rectangle *rectangle, Region *reg) nogil
+        long grid_find_region(CGrid *grid, const Rectangle *rectangle, Region *reg) nogil
         int grid_split(CGrid *self, Region *reg) nogil
-        long grid_search_bbox(CGrid *grid, Rectangle *sizes, BBoxRestrictions *bbr) nogil
+        long grid_search_bbox(CGrid *grid, const Rectangle *sizes,
+                              const BBoxRestrictions *bbr) nogil
