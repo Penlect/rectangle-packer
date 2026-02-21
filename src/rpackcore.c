@@ -19,8 +19,8 @@ $ indent -kr --no-tabs rpackcore.c
    ====
 */
 
-Cell _cell;
-Cell *const COL_FULL = &_cell;
+static Cell col_full_sentinel;
+static Cell *const COL_FULL = &col_full_sentinel;
 /* Coarse-search defaults tuned from thin-rectangle pathology benchmarks.
    The small-delta triggers cut long height scans; local refinement keeps
    the final bbox close to the best dense region. */
