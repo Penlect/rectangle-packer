@@ -132,18 +132,23 @@ static CellLink *alloc_cell_link(size_t size, long end_pos)
 {
     CellLink *cl = NULL;
     Cell *cells = NULL;
+
+    if (size == 0) {
+        size = 1;
+    }
+    if (end_pos == 0) {
+        end_pos = 1;
+    }
+    if (size > SIZE_MAX / sizeof(*cells)) {
+        return NULL;
+    }
+
     if ((cl = malloc(sizeof(*cl))) == NULL) {
         return NULL;
     }
     if ((cells = calloc(size, sizeof(*cells))) == NULL) {
         free(cl);
         return NULL;
-    }
-    if (size == 0) {
-        size = 1;
-    }
-    if (end_pos == 0) {
-        end_pos = 1;
     }
     cl->size = size;
     cl->end_pos = end_pos;
