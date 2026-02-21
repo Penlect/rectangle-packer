@@ -1,5 +1,5 @@
-#ifndef CORE_H
-#define CORE_H
+#ifndef RPACKCORE_H
+#define RPACKCORE_H
 
 #include <stdlib.h>
 
