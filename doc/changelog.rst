@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Unreleased
-==========
+Version 2.1.0 (2026-03-12)
+==========================
 
 **Changed:**
 
@@ -22,6 +22,13 @@ Unreleased
 * Public helpers ``rpack.bbox_size()``, ``rpack.overlapping()`` and
   ``rpack.packing_density()`` now transparently handle bigint packings by
   falling back to Python integer arithmetic when C ``long`` conversion overflows.
+
+**Bugfixes:**
+
+* Restored the public helper docstrings after wrapping
+  ``rpack.bbox_size()``, ``rpack.overlapping()`` and
+  ``rpack.packing_density()`` for bigint fallback support, so ``help()`` and
+  the generated API reference stay populated.
 
 Version 2.0.6 (2026-02-14)
 ==========================
