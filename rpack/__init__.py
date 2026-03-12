@@ -73,6 +73,9 @@ def bbox_size(sizes, positions) -> Tuple[int, int]:
         return _bbox_size_with_bigint_fallback(sizes, positions)
 
 
+bbox_size.__doc__ = _core_bbox_size.__doc__
+
+
 def packing_density(sizes, positions) -> float:
     try:
         return _core_packing_density(sizes, positions)
@@ -80,11 +83,17 @@ def packing_density(sizes, positions) -> float:
         return _packing_density_with_bigint_fallback(sizes, positions)
 
 
+packing_density.__doc__ = _core_packing_density.__doc__
+
+
 def overlapping(sizes, positions):
     try:
         return _core_overlapping(sizes, positions)
     except OverflowError:
         return _overlapping_with_bigint_fallback(sizes, positions)
+
+
+overlapping.__doc__ = _core_overlapping.__doc__
 
 
 enclosing_size = bbox_size

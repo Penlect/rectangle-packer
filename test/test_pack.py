@@ -2,6 +2,7 @@
 
 # Built-in
 import ctypes
+import inspect
 import random
 import subprocess
 import sys
@@ -697,3 +698,16 @@ class TestPackOutput(unittest.TestCase):
         small_pos = rpack.pack(small_sizes)
         big_pos = rpack.pack(big_sizes)
         self.assertEqual(big_pos, [(x * scale, y * scale) for x, y in small_pos])
+
+
+class TestPublicHelperDocs(unittest.TestCase):
+    def test_public_helper_docstrings_are_preserved(self):
+        self.assertEqual(inspect.getdoc(rpack.bbox_size), inspect.getdoc(rpack._core.bbox_size))
+        self.assertEqual(
+            inspect.getdoc(rpack.packing_density),
+            inspect.getdoc(rpack._core.packing_density),
+        )
+        self.assertEqual(
+            inspect.getdoc(rpack.overlapping),
+            inspect.getdoc(rpack._core.overlapping),
+        )
