@@ -2,6 +2,21 @@
 Changelog
 =========
 
+Version 2.1.1 (2026-10-13)
+==========================
+
+**Added:**
+
+* Binary wheels and packaging metadata for Python 3.15, including Windows
+  x64 and x86, Linux x86-64 and AArch64, and macOS Intel and Apple Silicon.
+
+**Other changes:**
+
+* Updated cibuildwheel to 4.3.1 and pinned release actions to verified commits.
+* Require Cython 3.3 or later when building on Python 3.15 or later.
+* Made Windows wheel architectures explicit and restricted publication
+  credentials to the PyPI upload job. Free-threaded builds remain excluded.
+
 Version 2.1.0 (2026-03-12)
 ==========================
 
