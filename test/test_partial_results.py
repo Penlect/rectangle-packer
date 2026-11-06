@@ -60,6 +60,73 @@ class TestPartialResultCorrespondence(unittest.TestCase):
         positions = self.partial([(3, 2), (2, 2), (1, 2), (4, 1)], (4, 4))
         self.assertEqual(positions, [(0, 0), (0, 2), (3, 0)])
 
+    def test_identical_rectangles_keep_capacity_prefix(self):
+        for size in ((1, 10), (3, 5)):
+            w, h = size
+            for count in (10, 31):
+                for capacity in (1, count // 2, count - 1):
+                    for horizontal in (False, True):
+                        bounds = (
+                            (w * capacity, h) if horizontal else (w, h * capacity)
+                        )
+                        with self.subTest(size=size, count=count, bounds=bounds):
+                            positions = self.partial([size] * count, bounds)
+                            expected = [
+                                (i * w, 0) if horizontal else (0, i * h)
+                                for i in range(capacity)
+                            ]
+                            self.assertEqual(positions, expected)
+
+    def test_duplicate_group_still_stops_at_different_missing_size(self):
+        for first_small in (0, 1, 3, 5, 8):
+            sizes = [(2, 3)] * 10
+            sizes.insert(first_small, (1, 2))
+            for swap_axes in (False, True):
+                oriented = [(h, w) for w, h in sizes] if swap_axes else sizes
+                bounds = (15, 2) if swap_axes else (2, 15)
+                with self.subTest(first_small=first_small, swap_axes=swap_axes):
+                    positions = self.partial(oriented, bounds)
+                    expected = [
+                        (3 * i, 0) if swap_axes else (0, 3 * i)
+                        for i in range(min(first_small, 5))
+                    ]
+                    self.assertEqual(positions, expected)
+
+    def test_bigint_identical_rectangles_keep_capacity_prefix(self):
+        factor = 1 << (ctypes.sizeof(ctypes.c_long) * 8)
+        for sx, sy in ((factor, 1), (1, factor), (7 * factor, 11 * factor)):
+            for horizontal in (False, True):
+                size = (3 * sx, 5 * sy)
+                w, h = size
+                bounds = (5 * w, h) if horizontal else (w, 5 * h)
+                with self.subTest(size=size, horizontal=horizontal):
+                    positions = self.partial([size] * 10, bounds)
+                    expected = [
+                        (i * w, 0) if horizontal else (0, i * h)
+                        for i in range(5)
+                    ]
+                    self.assertEqual(positions, expected)
+
+    def test_bigint_rounded_duplicates_preserve_input_order(self):
+        factor = 1 << (ctypes.sizeof(ctypes.c_long) * 8)
+        w, h = 3 * factor, 5 * factor
+        # Distinct, coprime sides become equal only after ceil approximation.
+        sizes = [(w - i, h - i) for i in range(1, 11)]
+        for capacity in (5, 10):
+            for horizontal in (False, True):
+                bounds = (capacity * w, h) if horizontal else (w, capacity * h)
+                with self.subTest(capacity=capacity, horizontal=horizontal):
+                    if capacity < len(sizes):
+                        positions = self.partial(sizes, bounds)
+                    else:
+                        positions = rpack.pack(sizes, *bounds)
+                        self.assert_valid_prefix(sizes, positions, *bounds)
+                    expected = [
+                        (i * w, 0) if horizontal else (0, i * h)
+                        for i in range(capacity)
+                    ]
+                    self.assertEqual(positions, expected)
+
     def test_reordered_inputs_and_swapped_axes(self):
         fixtures = [
             ([(1, 3), (3, 1), (2, 3)], (3, 3)),

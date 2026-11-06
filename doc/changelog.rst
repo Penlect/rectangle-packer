@@ -13,6 +13,11 @@ Unreleased
   the prefix can be empty even if later rectangles were placed. Previously,
   internal sorting could return positions for an unidentified subset, causing
   overlaps or bound violations when interpreted as an input prefix.
+* Break packing-sort ties by original input index, so partial results retain
+  earlier copies of identical rectangles even on platforms with an unstable
+  ``qsort``. The core packing geometry is preserved, but coordinates can be
+  reassigned among identical or conservatively rounded rectangles. For bigint
+  approximation, this can change the final bounding box within rounding gaps.
 
 Version 2.1.1 (2026-10-13)
 ==========================

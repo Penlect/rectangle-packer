@@ -40,7 +40,7 @@ class PackingImpossibleError(Exception):
 # sorting `Rectangle` structs by index, width, height and area.
 
 cdef int rectangle_index_cmp(const void *a, const void *b) noexcept nogil:
-    cdef int index_a, index_b
+    cdef size_t index_a, index_b
     index_a = (<Rectangle*>a)[0].index
     index_b = (<Rectangle*>b)[0].index
     if index_a < index_b:
@@ -82,7 +82,9 @@ cdef int rectangle_area_cmp(const void *a, const void *b) noexcept nogil:
     if area_a < area_b:
         return 1
     elif area_a == area_b:
-        return 0
+        # Width/height plus area ties imply identical sizes. Prefer earlier
+        # input copies so partial prefixes do not depend on qsort stability.
+        return rectangle_index_cmp(a, b)
     else:
         return -1
 
