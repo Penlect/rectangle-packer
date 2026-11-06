@@ -173,8 +173,8 @@ def pack(
         raise TypeError("max_width must be an integer")
     if max_height is not None and not isinstance(max_height, int):
         raise TypeError("max_height must be an integer")
-    if not isinstance(sizes, list):
-        sizes = list(sizes)
+    # Keep the native path and any bigint retry on the same outer snapshot.
+    sizes = tuple(sizes)
     mw = -1 if max_width is None else max_width
     mh = -1 if max_height is None else max_height
     try:

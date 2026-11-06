@@ -18,6 +18,13 @@ Unreleased
   ``qsort``. The core packing geometry is preserved, but coordinates can be
   reassigned among identical or conservatively rounded rectangles. For bigint
   approximation, this can change the final bounding box within rounding gaps.
+* Preserve successful bounding-box improvements of exactly one square unit
+  in ``rpack.pack()``. Apply the strict area limit consistently to the first
+  search candidate as well as subsequent candidates.
+* Snapshot packing inputs before allocating native rectangle storage, avoiding
+  crashes, uninitialized entries, and dropped rectangles when a container
+  reports an inaccurate length or is mutated while its rectangles are unpacked.
+  Input order and ordinary iterable support are preserved.
 
 Version 2.1.1 (2026-10-13)
 ==========================

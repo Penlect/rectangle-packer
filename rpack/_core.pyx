@@ -131,10 +131,13 @@ cdef class RectangleSet:
         cdef:
             size_t i
             long w, h, rect_area
+            tuple snapshot = tuple(sizes)
 
-        if len(sizes) == 0:
+        # Allocation and iteration must agree even if __len__ lies or a
+        # rectangle's unpacking mutates the caller's container.
+        if len(snapshot) == 0:
             raise ValueError("sizes must not be empty")
-        self.length = len(sizes)
+        self.length = len(snapshot)
         self.min_height = LONG_MAX
         self.min_width = LONG_MAX
 
@@ -146,7 +149,7 @@ cdef class RectangleSet:
         if not self.rectangles:
             raise MemoryError("Failed to allocate rectangle buffer")
         i = 0
-        for width, height in sizes:
+        for width, height in snapshot:
             if not isinstance(width, int):
                 raise TypeError("Rectangle width must be an integer")
             if not isinstance(height, int):
@@ -383,7 +386,8 @@ def pack(sizes, long max_width, long max_height):
         int case = CASE_0
         BBoxRestrictions bbr
 
-    # Abort early
+    # Direct core callers need the same snapshot before the empty-input check.
+    sizes = tuple(sizes)
     n = len(sizes)
     if n == 0:
         return list()
