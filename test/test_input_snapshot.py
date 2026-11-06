@@ -95,13 +95,22 @@ class TestInputSnapshot(unittest.TestCase):
         self.check_in_subprocess("""
             for mutation in ('append', 'clear', 'replace'):
                 class Sizes(list):
+                    mutated = False
+                    def __iter__(self):
+                        # Tuple construction need not request a length hint.
+                        # Exercise the callback during materialization anyway.
+                        len(self)
+                        return super().__iter__()
                     def __len__(self):
-                        if mutation == 'append':
-                            self.append((7, 8))
-                        elif mutation == 'clear':
-                            self.clear()
-                        else:
-                            self[:] = [(4, 2), (3, 5)]
+                        if not self.mutated:
+                            # Some runtimes also request their own length hint.
+                            self.mutated = True
+                            if mutation == 'append':
+                                self.append((7, 8))
+                            elif mutation == 'clear':
+                                self.clear()
+                            else:
+                                self[:] = [(4, 2), (3, 5)]
                         return 9
                 expected = {
                     'append': [(3, 5), (7, 8)],
