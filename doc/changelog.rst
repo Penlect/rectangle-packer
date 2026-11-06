@@ -2,6 +2,16 @@
 Changelog
 =========
 
+Unreleased
+==========
+
+**Bugfixes:**
+
+* Snapshot packing inputs before allocating native rectangle storage, avoiding
+  crashes, uninitialized entries, and dropped rectangles when a container
+  reports an inaccurate length or is mutated while its rectangles are unpacked.
+  Input order and ordinary iterable support are preserved.
+
 Version 2.1.1 (2026-10-13)
 ==========================
 
