@@ -34,9 +34,15 @@ def check(factory, expected):
 class TestInputSnapshot(unittest.TestCase):
     def check_in_subprocess(self, script):
         # A regression must fail this test, rather than corrupt the test runner.
+        # Keep child assertions active even when PYTHONOPTIMIZE is inherited.
         completed = subprocess.run(
             [sys.executable, "-c", _CHECK_SNAPSHOT + textwrap.dedent(script)],
-            env={**os.environ, "PYTHONMALLOC": "debug", "PYTHONFAULTHANDLER": "1"},
+            env={
+                **os.environ,
+                "PYTHONMALLOC": "debug",
+                "PYTHONFAULTHANDLER": "1",
+                "PYTHONOPTIMIZE": "0",
+            },
             capture_output=True,
             text=True,
             timeout=5,
@@ -85,6 +91,26 @@ class TestInputSnapshot(unittest.TestCase):
             check(lambda: Sizes([(3, 5)]), [(3, 5), (4, 2)])
         """)
 
+    def test_mutation_during_length_hint(self):
+        self.check_in_subprocess("""
+            for mutation in ('append', 'clear', 'replace'):
+                class Sizes(list):
+                    def __len__(self):
+                        if mutation == 'append':
+                            self.append((7, 8))
+                        elif mutation == 'clear':
+                            self.clear()
+                        else:
+                            self[:] = [(4, 2), (3, 5)]
+                        return 9
+                expected = {
+                    'append': [(3, 5), (7, 8)],
+                    'clear': [],
+                    'replace': [(4, 2), (3, 5)],
+                }[mutation]
+                check(lambda: Sizes([(3, 5)]), expected)
+        """)
+
     def test_mutation_while_unpacking_rectangles(self):
         self.check_in_subprocess("""
             for mutation in ('append', 'clear', 'replace'):
@@ -108,6 +134,12 @@ class TestInputSnapshot(unittest.TestCase):
             expected = [(3, 5), (4, 2)]
             check(lambda: (size for size in expected), expected)
             check(lambda: tuple(expected), expected)
+            class Sequence:
+                def __len__(self):
+                    return 1
+                def __getitem__(self, index):
+                    return expected[index]
+            check(Sequence, expected)
             class Sizes(list):
                 calls = 0
                 def __iter__(self):
@@ -147,9 +179,31 @@ class TestInputSnapshot(unittest.TestCase):
             for sizes, exception, message in errors:
                 for construct in (rpack.pack, RectangleSet):
                     try:
-                        construct(iter(sizes))
+                        # Also exercise cleanup after one native entry is written.
+                        construct(iter([(3, 5), *sizes]))
                     except exception as error:
                         assert str(error) == message
                     else:
                         raise AssertionError('invalid rectangle accepted')
+        """)
+
+    def test_iteration_errors_are_preserved(self):
+        self.check_in_subprocess("""
+            error = RuntimeError('iteration failed')
+            def broken_sizes():
+                yield (3, 5)
+                raise error
+            class BrokenPair:
+                def __iter__(self):
+                    raise error
+            for factory in (broken_sizes, lambda: [(3, 5), BrokenPair()]):
+                for construct in (
+                    rpack.pack, lambda sizes: core_pack(sizes, -1, -1), RectangleSet
+                ):
+                    try:
+                        construct(factory())
+                    except RuntimeError as caught:
+                        assert caught is error
+                    else:
+                        raise AssertionError('iteration error swallowed')
         """)
