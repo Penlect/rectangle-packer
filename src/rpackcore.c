@@ -637,28 +637,31 @@ grid_refine_neighborhood(Grid * grid, const Rectangle * sizes,
 
 /* grid_search_bbox will search for a bbox with smallest area that can
    contain all the rectangles, `sizes`, in the `grid`. The bounding
-   box must also satisfy the bounding box restrictions `bbr`. */
+   box must also satisfy the bounding box restrictions `bbr`, with area
+   strictly less than `bbr->max_area`. */
 long
 grid_search_bbox(Grid * grid, const Rectangle * sizes,
                  const BBoxRestrictions * bbr)
 {
     long happy_area = 1;        /* Todo */
-    long start_width, start_area, area, best_h, best_w, delta, grid_w;
+    long start_width, area, best_h, best_w, delta, grid_w;
     long effective_delta, max_effective_delta;
     unsigned long long stall_streak;
     unsigned long long stall_trigger = 0;
     long coarse_step;
     int success, improved, used_coarse_steps;
+    int found = 0;
     long refine_radius = 0;
 
+    area = bbr->max_area;
     grid->height = bbr->min_height;
-    grid->width = bbr->max_area / grid->height;
+    /* Treat area as an exclusive bound, including the first candidate. */
+    grid->width = (area - 1) / grid->height;
     if (bbr->max_width < grid->width) {
         grid->width = bbr->max_width;
     }
     start_width = grid->width;
 
-    start_area = area = bbr->max_area - 1;
     best_w = grid->width;
     best_h = grid->height;
     stall_streak = 0;
@@ -675,12 +678,13 @@ grid_search_bbox(Grid * grid, const Rectangle * sizes,
         if (success) {
             best_h = grid->height;
             best_w = grid_w;
-            /* bounded by construction: grid->width = area / grid->height and
-               grid_w <= grid->width, so best_h * best_w <= area <= LONG_MAX */
+            /* grid_w <= (area - 1) / best_h, so this product cannot
+               overflow and every success strictly improves the bound. */
             assert(best_h * best_w < area);
             area = best_h * best_w;
+            found = 1;
             improved = 1;
-            assert(area <= bbr->max_area);
+            assert(area < bbr->max_area);
             if (area <= happy_area) {
                 /* We have found a solution the caller is happy
                    with. End search. */
@@ -734,21 +738,15 @@ grid_search_bbox(Grid * grid, const Rectangle * sizes,
         grid->height += effective_delta;
 
         /* Dec width limit */
-        grid->width = area / grid->height;
+        grid->width = (area - 1) / grid->height;
         if (grid->width > bbr->max_width) {
             grid->width = bbr->max_width;
-        }
-        if (grid->width * grid->height == area) {
-            grid->width -= 1;
         }
         assert(grid->width * grid->height < area);
     }
 
-    /* If the area hasn't changed from the start it means that we
-       never found a successful packing in the while loop. We set the
-       grid maximum with/height and return a negative value to
-       indicate failure. */
-    if (start_area == area) {
+    /* Success must not depend on the size of the area improvement. */
+    if (!found) {
         grid->width = start_width;
         grid->height = bbr->min_height;
         return -1;
@@ -962,6 +960,91 @@ static void test_grid_split_overflow(void)
     grid_free(grid);
 }
 
+static void test_grid_search_one_unit_improvement(void)
+{
+    const long widths[] = {1, 7, LONG_MAX - 1};
+    size_t i;
+    Grid *grid = grid_alloc(2, 0, 0);
+    assert(grid != NULL);
+
+    for (i = 0; i < sizeof(widths) / sizeof(widths[0]); i++) {
+        const Rectangle sizes[] = {{.width = widths[i], .height = 1}};
+        BBoxRestrictions bbr = {
+            .min_width = widths[i], .max_width = widths[i],
+            .min_height = 1, .max_height = 1, .max_area = widths[i] + 1
+        };
+        assert(grid_search_bbox(grid, sizes, &bbr) == 1);
+        assert(grid->width == widths[i]);
+        assert(grid->height == 1);
+        bbr.max_area = widths[i];
+        assert(grid_search_bbox(grid, sizes, &bbr) == -1);
+        assert(grid->width == widths[i] - 1);
+        assert(grid->height == 1);
+    }
+    grid_free(grid);
+}
+
+static void test_grid_search_one_unit_improvement_after_failure(void)
+{
+    const Rectangle sizes[] = {
+        {.width = 7, .height = 1}, {.width = 2, .height = 4},
+        {.width = 1, .height = 3}, {.width = 1, .height = 2}
+    };
+    const BBoxRestrictions bbr = {
+        .min_width = 7, .max_width = 11,
+        .min_height = 4, .max_height = 10, .max_area = 36
+    };
+    Grid *grid = grid_alloc(5, 0, 0);
+    assert(grid != NULL);
+
+    /* The first strict-area candidate (8 x 4) fails; 7 x 5 succeeds. */
+    assert(grid_search_bbox(grid, sizes, &bbr) == 5);
+    assert(grid->width == 7);
+    assert(grid->height == 5);
+    grid_free(grid);
+}
+
+static void test_grid_search_excludes_equal_area(void)
+{
+    const Rectangle sizes[] = {
+        {.width = 2, .height = 2}, {.width = 2, .height = 2}
+    };
+    BBoxRestrictions bbr = {
+        .min_width = 2, .max_width = 4,
+        .min_height = 2, .max_height = 4, .max_area = 8
+    };
+    Grid *grid = grid_alloc(3, 0, 0);
+    assert(grid != NULL);
+
+    /* Both 4 x 2 and 2 x 4 pack perfectly, but neither improves area 8. */
+    assert(grid_search_bbox(grid, sizes, &bbr) == -1);
+    assert(grid->width == 3);
+    assert(grid->height == 2);
+    bbr.max_area = 9;
+    assert(grid_search_bbox(grid, sizes, &bbr) == 2);
+    assert(grid->width == 4);
+    assert(grid->height == 2);
+    grid_free(grid);
+}
+
+static void test_grid_search_failure(void)
+{
+    const Rectangle sizes[] = {
+        {.width = 2, .height = 2}, {.width = 2, .height = 2}
+    };
+    const BBoxRestrictions bbr = {
+        .min_width = 2, .max_width = 3,
+        .min_height = 2, .max_height = 3, .max_area = LONG_MAX
+    };
+    Grid *grid = grid_alloc(3, 0, 0);
+    assert(grid != NULL);
+
+    assert(grid_search_bbox(grid, sizes, &bbr) == -1);
+    assert(grid->width == 3);
+    assert(grid->height == 2);
+    grid_free(grid);
+}
+
 int main(void)
 {
     test_cell_link();
@@ -976,6 +1059,11 @@ int main(void)
     test_grid_split();
     test_grid_split_overflow();
     printf("GRID: PASSED\n");
+    test_grid_search_one_unit_improvement();
+    test_grid_search_one_unit_improvement_after_failure();
+    test_grid_search_excludes_equal_area();
+    test_grid_search_failure();
+    printf("GRID SEARCH: PASSED\n");
     return 0;
 }
 #endif

@@ -2,6 +2,15 @@
 Changelog
 =========
 
+Unreleased
+==========
+
+**Bugfixes:**
+
+* Preserve successful bounding-box improvements of exactly one square unit
+  in ``rpack.pack()``. Apply the strict area limit consistently to the first
+  search candidate as well as subsequent candidates.
+
 Version 2.1.1 (2026-10-13)
 ==========================
 
