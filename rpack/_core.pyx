@@ -27,9 +27,13 @@ class PackingImpossibleError(Exception):
     This can happen, for example, if `max_width` is strictly less than
     the widest rectangle given to :py:func:`rpack.pack`.
 
-    If possible, a partial result will be given in the second
-    argument, with the positions of packed rectangles up till the
-    point of failure.
+    For a ``"Partial result"`` error, the second argument is a list of
+    positions corresponding to an initial segment of the input, in
+    input order. If that list has length ``n``, use it with
+    ``sizes[:n]``. It stops before the first input rectangle missing
+    from the attempted packing, so it can be empty even if later
+    rectangles were placed. This prefix is not necessarily the
+    longest one that could fit within the restrictions.
     """
 
 # The following four functions are used as compare-functions for
@@ -204,6 +208,13 @@ cdef class RectangleSet:
                 break
             end_i = i + 1
         self.sort_by_index(end_i)
+        if end_i != self.length:
+            # Internal packing order can skip input indices. Coordinates
+            # alone identify only the contiguous prefix starting at index 0.
+            for i in range(end_i):
+                if self.rectangles[i].index != i:
+                    end_i = i
+                    break
         output = [(self.rectangles[i].x, self.rectangles[i].y)
                   for i in range(end_i)]
         if end_i != self.length:

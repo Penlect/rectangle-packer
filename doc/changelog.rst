@@ -2,6 +2,18 @@
 Changelog
 =========
 
+Unreleased
+==========
+
+**Bugfixes:**
+
+* Partial positions in ``PackingImpossibleError("Partial result", positions)``
+  now correspond to ``sizes[:len(positions)]`` in input order, including after
+  bigint rescaling. Positions stop before the first missing input rectangle;
+  the prefix can be empty even if later rectangles were placed. Previously,
+  internal sorting could return positions for an unidentified subset, causing
+  overlaps or bound violations when interpreted as an input prefix.
+
 Version 2.1.1 (2026-10-13)
 ==========================
 
