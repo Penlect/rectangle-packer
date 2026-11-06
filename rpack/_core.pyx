@@ -27,16 +27,20 @@ class PackingImpossibleError(Exception):
     This can happen, for example, if `max_width` is strictly less than
     the widest rectangle given to :py:func:`rpack.pack`.
 
-    If possible, a partial result will be given in the second
-    argument, with the positions of packed rectangles up till the
-    point of failure.
+    For a ``"Partial result"`` error, the second argument is a list of
+    positions corresponding to an initial segment of the input, in
+    input order. If that list has length ``n``, use it with
+    ``sizes[:n]``. It stops before the first input rectangle missing
+    from the attempted packing, so it can be empty even if later
+    rectangles were placed. This prefix is not necessarily the
+    longest one that could fit within the restrictions.
     """
 
 # The following four functions are used as compare-functions for
 # sorting `Rectangle` structs by index, width, height and area.
 
 cdef int rectangle_index_cmp(const void *a, const void *b) noexcept nogil:
-    cdef int index_a, index_b
+    cdef size_t index_a, index_b
     index_a = (<Rectangle*>a)[0].index
     index_b = (<Rectangle*>b)[0].index
     if index_a < index_b:
@@ -78,7 +82,9 @@ cdef int rectangle_area_cmp(const void *a, const void *b) noexcept nogil:
     if area_a < area_b:
         return 1
     elif area_a == area_b:
-        return 0
+        # Width/height plus area ties imply identical sizes. Prefer earlier
+        # input copies so partial prefixes do not depend on qsort stability.
+        return rectangle_index_cmp(a, b)
     else:
         return -1
 
@@ -207,6 +213,13 @@ cdef class RectangleSet:
                 break
             end_i = i + 1
         self.sort_by_index(end_i)
+        if end_i != self.length:
+            # Internal packing order can skip input indices. Coordinates
+            # alone identify only the contiguous prefix starting at index 0.
+            for i in range(end_i):
+                if self.rectangles[i].index != i:
+                    end_i = i
+                    break
         output = [(self.rectangles[i].x, self.rectangles[i].y)
                   for i in range(end_i)]
         if end_i != self.length:

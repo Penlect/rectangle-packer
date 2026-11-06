@@ -7,6 +7,17 @@ Unreleased
 
 **Bugfixes:**
 
+* Partial positions in ``PackingImpossibleError("Partial result", positions)``
+  now correspond to ``sizes[:len(positions)]`` in input order, including after
+  bigint rescaling. Positions stop before the first missing input rectangle;
+  the prefix can be empty even if later rectangles were placed. Previously,
+  internal sorting could return positions for an unidentified subset, causing
+  overlaps or bound violations when interpreted as an input prefix.
+* Break packing-sort ties by original input index, so partial results retain
+  earlier copies of identical rectangles even on platforms with an unstable
+  ``qsort``. The core packing geometry is preserved, but coordinates can be
+  reassigned among identical or conservatively rounded rectangles. For bigint
+  approximation, this can change the final bounding box within rounding gaps.
 * Preserve successful bounding-box improvements of exactly one square unit
   in ``rpack.pack()``. Apply the strict area limit consistently to the first
   search candidate as well as subsequent candidates.

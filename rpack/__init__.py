@@ -116,6 +116,13 @@ def pack(
     The algorithm will sort the input in different ways internally so
     there is no need to sort ``sizes`` in advance.
 
+    If packing fails with a ``"Partial result"`` error, the second
+    exception argument contains positions for an input prefix. Pair
+    those positions with ``sizes[:len(positions)]``. To retain that
+    prefix when using an iterator, materialize it before calling
+    ``pack``. The prefix may be empty and is not guaranteed to be the
+    longest prefix that could fit.
+
     The GIL is released when C-intensive code is running.  Execution
     time increases by the number *and* size of input rectangles.  If
     this becomes a problem, you might need to implement your own
