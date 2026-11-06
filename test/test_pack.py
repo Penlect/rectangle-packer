@@ -608,6 +608,36 @@ class TestPackOutput(unittest.TestCase):
         width, height = rpack.enclosing_size(sizes, pos)
         self.assertEqual(width * height, 25)
 
+    def test_one_unit_area_improvement(self):
+        """Keep an improvement from area 36 to 35 in the strategy sweep."""
+        original = [(7, 1), (1, 3), (1, 2), (2, 4)]
+        for transpose in (False, True):
+            sizes = [(h, w) for w, h in original] if transpose else original
+            max_width, max_height = (5, 9) if transpose else (9, 5)
+            bounds = {"max_width": max_width, "max_height": max_height}
+            for limits in ({}, bounds):
+                with self.subTest(transpose=transpose, limits=limits):
+                    pos = rpack.pack(sizes, **limits)
+                    self.assertEqual(len(pos), len(sizes))
+                    self.assertTrue(all(x >= 0 and y >= 0 for x, y in pos))
+                    self.assertIsNone(_overlapping_py(sizes, pos))
+                    width, height = _bbox_size_py(sizes, pos)
+                    self.assertEqual(width * height, 35)
+                    if limits:
+                        self.assertLessEqual(width, limits["max_width"])
+                        self.assertLessEqual(height, limits["max_height"])
+
+    def test_pack_at_initial_area_limit(self):
+        """The final packing can equal the internal search's initial limit."""
+        long_max = (1 << (ctypes.sizeof(ctypes.c_long) * 8 - 1)) - 1
+        for width, height in ((long_max, 1), (1, long_max)):
+            with self.subTest(width=width, height=height):
+                self.assertEqual(rpack.pack([(width, height)]), [(0, 0)])
+                self.assertEqual(
+                    rpack.pack([(width, height)], max_width=width, max_height=height),
+                    [(0, 0)],
+                )
+
     def test_medium_pack(self):
         sizes = [(i, i) for i in range(20, 1, -1)]
         pos = rpack.pack(sizes)
