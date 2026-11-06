@@ -1027,6 +1027,26 @@ static void test_grid_search_excludes_equal_area(void)
     grid_free(grid);
 }
 
+static void test_grid_search_keeps_success_after_failure(void)
+{
+    const Rectangle sizes[] = {
+        {.width = 2, .height = 3}, {.width = 2, .height = 3},
+        {.width = 2, .height = 1}
+    };
+    const BBoxRestrictions bbr = {
+        .min_width = 2, .max_width = 6,
+        .min_height = 3, .max_height = 6, .max_area = 19
+    };
+    Grid *grid = grid_alloc(4, 0, 0);
+    assert(grid != NULL);
+
+    /* 6 x 3 and 4 x 4 succeed; later 3 x 5 and 2 x 6 candidates fail. */
+    assert(grid_search_bbox(grid, sizes, &bbr) == 4);
+    assert(grid->width == 4);
+    assert(grid->height == 4);
+    grid_free(grid);
+}
+
 static void test_grid_search_failure(void)
 {
     const Rectangle sizes[] = {
@@ -1062,6 +1082,7 @@ int main(void)
     test_grid_search_one_unit_improvement();
     test_grid_search_one_unit_improvement_after_failure();
     test_grid_search_excludes_equal_area();
+    test_grid_search_keeps_success_after_failure();
     test_grid_search_failure();
     printf("GRID SEARCH: PASSED\n");
     return 0;
