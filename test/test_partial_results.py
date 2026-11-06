@@ -56,6 +56,10 @@ class TestPartialResultCorrespondence(unittest.TestCase):
         positions = self.partial([(3, 2), (2, 2), (4, 1), (1, 2)], (4, 4))
         self.assertEqual(positions, [(0, 0), (0, 2)])
 
+    def test_keeps_all_positions_when_placed_indices_have_no_gap(self):
+        positions = self.partial([(3, 2), (2, 2), (1, 2), (4, 1)], (4, 4))
+        self.assertEqual(positions, [(0, 0), (0, 2), (3, 0)])
+
     def test_reordered_inputs_and_swapped_axes(self):
         fixtures = [
             ([(1, 3), (3, 1), (2, 3)], (3, 3)),
@@ -106,6 +110,32 @@ class TestPartialResultCorrespondence(unittest.TestCase):
                 self.assertEqual(
                     positions, [(x * factor, y * factor) for x, y in expected]
                 )
+
+    def test_bigint_combined_gcd_and_approximation_with_swapped_axes(self):
+        factor = 1 << (ctypes.sizeof(ctypes.c_long) * 8)
+        fixtures = [
+            ([(1, 3), (3, 1), (2, 3)], (3, 3)),
+            ([(3, 2), (2, 2), (4, 1), (1, 2)], (4, 4)),
+        ]
+        for base, bounds in fixtures:
+            for swap_axes in (False, True):
+                oriented = [(h, w) for w, h in base] if swap_axes else base
+                limits = bounds[::-1] if swap_axes else bounds
+                # Exact gcd factors differ between axes; the reduced sizes
+                # still overflow and need conservative approximation too.
+                sizes = [
+                    (7 * (w * factor - 1), 11 * (h * factor - 1))
+                    for w, h in oriented
+                ]
+                with self.subTest(sizes=sizes, swap_axes=swap_axes):
+                    expected = self.partial(oriented, limits)
+                    positions = self.partial(
+                        sizes, (7 * limits[0] * factor, 11 * limits[1] * factor)
+                    )
+                    self.assertEqual(
+                        positions,
+                        [(7 * x * factor, 11 * y * factor) for x, y in expected],
+                    )
 
     def test_seeded_constrained_packings(self):
         rng = random.Random(20261106)
