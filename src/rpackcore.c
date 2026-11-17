@@ -601,7 +601,10 @@ grid_refine_neighborhood(Grid * grid, const Rectangle * sizes,
         h_stop = *best_h + radius;
     }
 
-    for (h = h_start; h <= h_stop; h++) {
+    /* Test the bound before advancing so a final height of LONG_MAX is safe,
+       including when a candidate is skipped. */
+    for (h = h_start - 1; h < h_stop;) {
+        h++;
         if (h <= 0) {
             continue;
         }
