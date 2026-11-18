@@ -7,6 +7,8 @@ Unreleased
 
 **Bugfixes:**
 
+* Fix a hang in ``rpack.pack()`` when bounding-box refinement reaches the
+  largest height representable by C ``long``.
 * Partial positions in ``PackingImpossibleError("Partial result", positions)``
   now correspond to ``sizes[:len(positions)]`` in input order, including after
   bigint rescaling. Positions stop before the first missing input rectangle;

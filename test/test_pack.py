@@ -1,6 +1,7 @@
 """Test rpack._core module"""
 
 # Built-in
+import ast
 import ctypes
 import inspect
 import random
@@ -637,6 +638,28 @@ class TestPackOutput(unittest.TestCase):
                     rpack.pack([(width, height)], max_width=width, max_height=height),
                     [(0, 0)],
                 )
+
+    def test_pack_refinement_stops_at_long_max(self):
+        long_max = (1 << (ctypes.sizeof(ctypes.c_long) * 8 - 1)) - 1
+        # The first coarse step reaches the feasible height, triggering a
+        # refinement window whose upper endpoint is LONG_MAX.
+        sizes = [(1, long_max - 18)] + [(1, 1)] * 17
+        script = (
+            "import rpack\n"
+            f"print(rpack.pack({sizes!r}, max_width=1, max_height={long_max}))\n"
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", script],
+            capture_output=True,
+            text=True,
+            timeout=3.0,
+            check=True,
+        )
+        positions = ast.literal_eval(completed.stdout)
+        self.assertEqual(len(positions), len(sizes))
+        self.assertTrue(all(x == 0 and y >= 0 for x, y in positions))
+        self.assertEqual(_bbox_size_py(sizes, positions), (1, long_max - 1))
+        self.assertIsNone(_overlapping_py(sizes, positions))
 
     def test_medium_pack(self):
         sizes = [(i, i) for i in range(20, 1, -1)]
