@@ -28,6 +28,14 @@ Unreleased
   reports an inaccurate length or is mutated while its rectangles are unpacked.
   Input order and ordinary iterable support are preserved.
 
+**Added:**
+
+* The :doc:`performance guide <benchmarks>` shows how rectangle shape affects
+  runtime and includes an example for timing your own inputs.
+* Contributors can reproduce the published measurements and compare releases
+  on identical inputs with ``python3 -m benchmark``. See the
+  :doc:`benchmark-methodology` for commands and datasets.
+
 Version 2.1.1 (2026-10-13)
 ==========================
 
