@@ -1,134 +1,127 @@
-#!/usr/bin/env python3
-"""Benchmark rpack"""
+"""Command line interface for benchmark runs, comparisons and immutable reports."""
 
-# Built-in
+from __future__ import annotations
+
 import argparse
-import asyncio
-import concurrent.futures
-import datetime as dt
-import json
-import pathlib
-import platform
-import random
-import struct
-import timeit
+from datetime import datetime, timezone
+from pathlib import Path
+import uuid
 
-# Project
-import rpack
-
-random.seed(123)
+from benchmark import suite
 
 
-def rectangles_unif_side(n: int, m: int) -> list[tuple[float, float]]:
-    """Return list of `n` rec. with random side lengths `unif{0, m}`"""
-    return [(random.randint(1, m), random.randint(1, m)) for _ in range(n)]
-
-
-def _measurement(func, sizes):
-    duration = min(
-        timeit.repeat("_ = func(sizes)", repeat=10, number=1, globals=locals())
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="command", required=True)
+    run = commands.add_parser("run", help="Build and measure a new immutable campaign.")
+    run.add_argument("--output-dir", "-o", type=Path)
+    run.add_argument(
+        "--machine-label",
+        help="Optional public label shared by runs on one machine; do not use its hostname.",
     )
-    pos = func(sizes)
-    density = rpack.packing_density(sizes, pos)
-    return duration, density, sizes  # Return sizes as well
+    run.add_argument("--profile", choices=sorted(suite.PROFILES), default="full")
+    run.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Physical cores to use; 1 measures isolated latency (default).",
+    )
+    run.add_argument(
+        "--corpus", type=Path, help="Reuse a previous run's exact corpus.jsonl.gz."
+    )
+    run.add_argument(
+        "--timing-blocks", type=int, help="Override the profile's block count (>=2)."
+    )
+    run.add_argument(
+        "--timeout",
+        type=float,
+        default=600,
+        help="Deadline per job, including warmup and all timing blocks (seconds).",
+    )
+    plot = commands.add_parser("plot", help="Plot a complete, verified campaign.")
+    plot.add_argument("--input-dir", "-i", type=Path, required=True)
+    plot.add_argument("--output-dir", "-o", type=Path, required=True)
+    plot.add_argument("--algorithm", dest="algorithms", action="append")
+    publish = commands.add_parser(
+        "publish", help="Stage a self-contained immutable campaign."
+    )
+    publish.add_argument("--input-dir", type=Path, required=True)
+    publish.add_argument("--plot-dir", type=Path, required=True)
+    publish.add_argument("--output-dir", type=Path, required=True)
+    publish.add_argument(
+        "--machine-label", help="Optional public alias for this measurement machine."
+    )
+    report = commands.add_parser(
+        "report", help="Generate a documentation page from verified evidence."
+    )
+    report.add_argument("--input-dir", type=Path, required=True)
+    report.add_argument("--output", type=Path, required=True)
+    compare = commands.add_parser(
+        "compare", help="Compare matched inputs across two revisions."
+    )
+    compare.add_argument("baseline", type=Path)
+    compare.add_argument("candidate", type=Path)
+    compare.add_argument("--output-dir", type=Path, required=True)
+    compare.add_argument("--allow-environment-change", action="store_true")
+    export = commands.add_parser(
+        "export", help="Export buildable sources with verified origin metadata."
+    )
+    export.add_argument("--output-dir", type=Path, required=True)
+    export.add_argument(
+        "--library-ref",
+        help="Use library sources from this Git revision with the current harness.",
+    )
+    args = parser.parse_args(argv)
+    if args.command == "run":
+        from benchmark.runner import run_benchmarks
 
+        destination = args.output_dir or Path("artifacts/benchmarks") / (
+            datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            + "-"
+            + uuid.uuid4().hex[:8]
+        )
+        run_benchmarks(
+            destination,
+            args.profile,
+            args.workers,
+            corpus_path=args.corpus,
+            timing_blocks=args.timing_blocks,
+            timeout_seconds=args.timeout,
+            machine_label=args.machine_label,
+        )
+    elif args.command == "plot":
+        from benchmark.plot import plot_benchmarks
 
-async def main(args):
-    n, m = args.number_of_rectangles, args.max_side_length
-    with concurrent.futures.ProcessPoolExecutor() as exe:
-        max_duration = 0
-        slowest_sizes = None
+        plot_benchmarks(args.input_dir, args.output_dir, args.algorithms)
+    elif args.command == "publish":
+        from benchmark.publish import publish_benchmark
 
-        async def measurement():
-            loop = asyncio.get_running_loop()
-            return await loop.run_in_executor(
-                exe,
-                _measurement,
-                rpack.pack,
-                rectangles_unif_side(n, m),
-            )
+        publish_benchmark(
+            args.input_dir,
+            args.plot_dir,
+            args.output_dir,
+            machine_label=args.machine_label,
+        )
+    elif args.command == "report":
+        from benchmark.report import write_report
 
-        timestamp = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        base_filename = f"{timestamp}_{n}n_{m}m_py{platform.python_version()}"
-        bin_filename = base_filename + ".bin"
-        json_filename = base_filename + "_slowest.json"
+        write_report(args.input_dir, args.output)
+    elif args.command == "compare":
+        from benchmark.compare import compare_campaigns
 
-        with open(args.output_dir / bin_filename, "ab") as fh:
-            pending = set()
-            samples = 0
-            try:
-                while True:
-                    while len(pending) < args.cpus:
-                        pending.add(asyncio.create_task(measurement()))
-                    done, pending = await asyncio.wait(
-                        pending, return_when=asyncio.FIRST_COMPLETED
-                    )
-                    for t in done:
-                        duration, density, sizes = await t
-                        fh.write(struct.pack("ff", duration, density))
-                        # print(duration, density)
+        compare_campaigns(
+            args.baseline,
+            args.candidate,
+            args.output_dir,
+            allow_environment_change=args.allow_environment_change,
+        )
+    elif args.command == "export":
+        from benchmark.provenance import export_sources
 
-                        # Track the slowest case
-                        if duration > max_duration:
-                            max_duration = duration
-                            slowest_sizes = sizes
-
-                        samples += 1
-                        if samples >= args.samples:
-                            break
-                    if samples >= args.samples:
-                        break
-            finally:
-                if slowest_sizes:
-                    # Save the slowest case to JSON
-                    slowest_case = {
-                        "duration": max_duration,
-                        "rectangles": slowest_sizes,
-                    }
-                    with open(args.output_dir / json_filename, "w") as json_file:
-                        json.dump(slowest_case, json_file, indent=2)
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--number-of-rectangles",
-    "-n",
-    type=int,
-    default=100,
-    help="Number of rectangles to pack (default: %(default)s).",
-)
-parser.add_argument(
-    "--max-side-length",
-    "-m",
-    type=int,
-    default=1000,
-    help="Max side length of random rectangle (default: %(default)s).",
-)
-parser.add_argument(
-    "--samples",
-    type=int,
-    default=float("inf"),
-    help="Number of samples to compute (default: %(default)s).",
-)
-parser.add_argument(
-    "--cpus",
-    "-c",
-    type=int,
-    default=10,
-    help="Number of CPUs to use (default: %(default)s).",
-)
-parser.add_argument(
-    "--output-dir",
-    "-o",
-    type=pathlib.Path,
-    default=pathlib.Path.cwd(),
-    help="Output directory (default: %(default)s).",
-)
+        export_sources(args.output_dir, library_ref=args.library_ref)
+        print(f"Buildable sources exported to {args.output_dir}")
+    return 0
 
 
 if __name__ == "__main__":
-    args = parser.parse_args()
-    try:
-        asyncio.run(main(args))
-    except KeyboardInterrupt:
-        print("Bye")
+    raise SystemExit(main())

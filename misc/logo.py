@@ -5,23 +5,9 @@ import os
 import random
 import subprocess
 
-# PyPI
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import matplotlib.gridspec as gridspec
-import matplotlib.ticker as mtick
-import matplotlib.animation as mani
-from matplotlib.backends.backend_pdf import PdfPages
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import numpy as np
-
 # Project
 import rpack
-from misc.recstat import PlotPacking, best_first
-
-# Select a non-interactive backend so we can run on a server
-matplotlib.use("Agg")
+from misc.packing_plot import PlotPacking
 
 
 def candidates():
