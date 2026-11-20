@@ -1,0 +1,9 @@
+/* Wrap generated benchmark tables within the documentation's reading column. */
+.rst-content table.benchmark-table {
+    width: 100%;
+}
+
+.rst-content table.benchmark-table th,
+.rst-content table.benchmark-table td {
+    white-space: normal;
+}

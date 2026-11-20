@@ -1,0 +1,43 @@
+# VCS / local metadata
+.git
+.gitignore
+.gitmodules
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+rpack/*.so
+rpack/_core.c
+test/c_tests
+
+# Documentation build output
+doc/_build/
+
+# Local experiment outputs (can be very large)
+research-results/
+research-data/
+
+# Common large local temporary artifacts
+TMP_*.zip
+TMP_*.tar
+TMP_*.tar.gz
+TMP_*.tgz
+*.zst
+
+# Run directories and local assistant metadata
+artifacts/
+TMP_*
+.codex/
+.agents/
+AGENTS.md

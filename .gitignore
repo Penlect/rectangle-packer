@@ -25,3 +25,5 @@ venv*/
 _build/
 artifacts/
 mprofile_*.dat
+
+!doc/_static/benchmark-data/**/*.svg

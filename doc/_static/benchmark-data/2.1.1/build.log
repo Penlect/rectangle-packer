@@ -1,0 +1,22 @@
+<path> SetuptoolsDeprecationWarning: License classifiers are deprecated.
+!!
+
+        ********************************************************************************
+        Please consider removing the following classifiers in favor of a SPDX license expression:
+
+        License :: OSI Approved :: MIT License
+
+        See http<path> for details.
+        ********************************************************************************
+
+!!
+  self._finalize_license_expression()
+running build_ext
+[1/1] Cythonizing rpack/_core.pyx
+building 'rpack._core' extension
+creating <path>
+creating <path>
+x86_64-linux-gnu-gcc -fno-strict-overflow -Wsign-compare -DNDEBUG -g -O2 -Wall -fPIC -Iinclude -I/usr/include/python3.13 -c rpack/_core.c -o <path>
+x86_64-linux-gnu-gcc -fno-strict-overflow -Wsign-compare -DNDEBUG -g -O2 -Wall -fPIC -Iinclude -I/usr/include/python3.13 -c src/rpackcore.c -o <path>
+creating <path>
+x86_64-linux-gnu-gcc -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-z,relro -g -fwrapv -O2 <path> <path> -L/usr/lib/x86_64-linux-gnu -o <path>

@@ -1,0 +1,131 @@
+{
+  "algorithms": [
+    "default"
+  ],
+  "benchmark_schema_version": 2,
+  "build": {
+    "command": [
+      "<path>",
+      "setup.py",
+      "build_ext",
+      "--force",
+      "--build-lib",
+      "<path>",
+      "--build-temp",
+      "<path>"
+    ],
+    "compiler": {
+      "command": [
+        "x86_64-linux-gnu-gcc"
+      ],
+      "version": "x86_64-linux-gnu-gcc (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "environment": {
+      "ARCHFLAGS": null,
+      "CC": null,
+      "CFLAGS": null,
+      "CPPFLAGS": null,
+      "LDFLAGS": null,
+      "LDSHARED": null
+    },
+    "log_file": "build.log",
+    "log_sha256": "df5fa281a34b22f3bdcb589ee949be4c77d5ffeabd8f8da04e058df5af4d4994",
+    "package_versions": {
+      "Cython": "3.0.11",
+      "setuptools": "78.1.1"
+    }
+  },
+  "build_seconds": 2.028830878998633,
+  "completed_job_count": 324,
+  "corpus_file": "corpus.jsonl.gz",
+  "corpus_file_sha256": "029d9429785f0f874b3e35cdc2d978b11568a70e5314c2eeba3b964e53c727d3",
+  "corpus_sha256": "85521a70d71fad99adc7f3e968c305a7c0cf30eb07b873e83856d59da8828dff",
+  "cpu_governors": [
+    "powersave"
+  ],
+  "cpu_model": "AMD Ryzen 7 9700X 8-Core Processor",
+  "duration_seconds": 544.5891500689995,
+  "expected_job_count": 324,
+  "extension_filename": "_core.cpython-313-x86_64-linux-gnu.so",
+  "extension_sha256": "ed879d2fb10cfb49c6473b437375bd045c1ded4a18a9fe01eceb841c7e893853",
+  "finished_timestamp_utc": "2026-11-07",
+  "job_grid_sha256": "269a3da0694ab3dad3e2ca05d1e8d05f9a5e6e7621276636859de0c2598e0ed4",
+  "job_order_seed": 10099501957170669244,
+  "machine_label": "machine-1",
+  "max_repeat": 65536,
+  "measurement_mode": "latency",
+  "measurement_seconds": 542.5572045600002,
+  "outcomes": {
+    "infeasible": 2,
+    "ok": 322
+  },
+  "platform": "Linux-x86_64",
+  "profile": "publication",
+  "publication_privacy_version": 1,
+  "python_version": "3.13.5",
+  "results_compression": "gzip",
+  "results_file": "results.jsonl.gz",
+  "results_sha256": "ae755658cee8037fed16991e654811817700010fc4d43b2d636ba007ff39c779",
+  "results_uncompressed_sha256": "068417ed7f99c5dcba32252c17e7eafd7c3e2042aa3e34b33a34acdcff68a075",
+  "rpack_version": "2.1.1",
+  "source": {
+    "files": {
+      ".dockerignore": "43019be339d8c264b92a48ec0f681b782698a51e4d277986f3d5ccb2ba6568d1",
+      "LICENSE.md": "b0b677df712e1cc6c70f0ce5cb1338bfa08f7a6beab760ef51fa5f0f3eca5dd8",
+      "MANIFEST.in": "22eb14eebf8049e3ecb65a17c510b273fd032ef32aa1e994e6234c5e3db3f524",
+      "Makefile": "2246c51dbb3c67f72ddb312b9f3f1f8e3d6a6bf7c2a5966e1f5c4de25f3c78b9",
+      "README-pypi.rst": "e5c5313df4fd1543aa017c0809239e992fccab7ef9613cd12daed9ad4e79fd6b",
+      "benchmark/Dockerfile": "217a676ae1afdf046441292c3c4e5817caf411e118a362054dd989070f0b15fc",
+      "benchmark/__init__.py": "50bcdd5d3bc37c97fee4c17b7bf32179f101cd06530be04013431605b87abe32",
+      "benchmark/__main__.py": "20516180817b1c922d7cf7947c4ad9a2fe48b1bc51007713bd3dfff424574853",
+      "benchmark/compare.py": "32c5df7c43287a279ded02bc50bd39c75f14c2d55f26b17599f06a28f91cca6c",
+      "benchmark/corpus.py": "1b9e14a01f3c348e5a761abdafa1d418ff77e75972e067bdafed589835921d2c",
+      "benchmark/plot.py": "285593bbdd715c97fe7179f768181f17903d658d2be568703eb0514c12a87a39",
+      "benchmark/provenance.py": "73582ec070a3d4d3df7d5ed080fd060d5472ee0cc7e05d7d5403ee375f200fb9",
+      "benchmark/publish.py": "72ca101427e42f92439ded6ebd3108e9e8194dfecc0d92fb59a45def216fd762",
+      "benchmark/report.py": "5d7e70efafb39523c957e543cd27f7ddd1229c934248c7b3761e62f7979c60b0",
+      "benchmark/results.py": "75468b646f0258bef38c8696ba5e9e7833930f53d0fe14c7dbaff33b664d2356",
+      "benchmark/runner.py": "68558b963e7cbdd4e52446c232beb70191936af7f5cd3076b2f0b25e355d03ed",
+      "benchmark/storage.py": "54bbaf7005ff1d40d64eb8f6e5c2804c6e6ceda32ea063966682d5853efad577",
+      "benchmark/suite.py": "d752ffbe17a42ded0088ff913db56f13787c3c6d11e26c34774d59e31a9e0e06",
+      "include/rpackcore.h": "a9e03bb9d34ab7e1bda3e27cc6159ff3478021dc60093952f02a1d86bdc48593",
+      "pyproject.toml": "86a4ecd462ad8a468c74ebfb0fb8e6662ad96d9b0c4e52c5e2fb5a407da7e4a9",
+      "rpack/__init__.py": "94255638fa32ca31d00e8f0afd9d1067cf918044319f6c38d30f22e4976d0840",
+      "rpack/_bigint_fallback.py": "597971d51454f7282214c962275e293fcf084190ca96a97be4fe99338b53254b",
+      "rpack/_core.pxd": "2bd691fb405dca5fc756d93be8d4b25910febe16156d6191af3f775b3b650cae",
+      "rpack/_core.pyx": "fd66b33af3728c2efced0f78f4e2beac06fed510744ab77db4c0e837b0d187f8",
+      "setup.py": "d2b4ff21d343e02fff0b65beff67aeb5d6962ecb90a98fae969a93ac18060694",
+      "src/rpackcore.c": "63a74f610ccb70e478b883b6dd2a7826305d0ab94e10d6f9ff5f235b8946e8a1",
+      "test/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "test/benchmark_fixtures.py": "336e9e05d258f85541ef4b20a5fb1f9ce38304bf41a14095234c3e382c8b7849",
+      "test/test.py": "c28f54386ee084fd81bb957b1e203d2417b78c576f723a3e2e308eb85f1ad9c7",
+      "test/test_benchmark.py": "8dc1d73a02873ca8e1cd7ec28b1a43761e430b954445caeee9634eac70165d8a",
+      "test/test_benchmark_compare.py": "e6a914670145dbba5f6edd1f86f9d2c42d0d667a4a1d2a3f9bec8aa832eca46a",
+      "test/test_benchmark_runner.py": "bdf0ccc36a368ff38382a22566da64002e6cb8dcc730d7e21a3f28965f4afe6c",
+      "test/test_input_snapshot.py": "e97a5e7a086d2aa0349ca6e23c3101aef9d7d83ae7fb1f40bf691515874f0c00",
+      "test/test_memory.py": "9ced8c61b1e20d84f9102fcc2ee85dbb7610e3a24f6a35025986048f09d9005e",
+      "test/test_pack.py": "c48c4419a23337cab8e4548b3757a4e49ddbc4d1ac3a8a35ce83761dbea0ecf7",
+      "test/test_partial_results.py": "7918243a10185b2f10634c933870246576391d99edc71e9a718a327149ade389"
+    },
+    "git_dirty": null,
+    "git_revision": null,
+    "harness_git_revision": null,
+    "library_git_revision": null,
+    "library_source_sha256": "1824b5378c09260e85987dfdad560e60c9347f3f100c4e3e0a6522a3b37748c6",
+    "publication_privacy_version": 1,
+    "redacted_harness_files": [
+      "benchmark/report.py"
+    ],
+    "source_sha256": "9d436c9cd8baa1a6aee5d7f0f4ce37bf5ad8017cb4b72d79f872a5a49e949f96"
+  },
+  "source_archive_sha256": "6251754e7fab586ba5898d541bc6bee3a82130266b9c52de2a17c61a8edba6c8",
+  "status": "complete",
+  "target_time_ns": 50000000,
+  "timeout_seconds": 600.0,
+  "timestamp_utc": "2026-11-07",
+  "timing_blocks": 7,
+  "worker_cpus": [
+    0
+  ],
+  "workers": 1
+}
